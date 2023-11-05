@@ -24,7 +24,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Process;
 import android.os.UserManager;
+import android.os.UserHandle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.widget.Toast;
@@ -118,6 +120,15 @@ public class Utility {
         }
     }
 
+    // Determine if the app is running in a secondary profile
+    // If we are unsure (null userManager), return false
+    public static boolean isSecondaryProfile(final Context context) {
+        UserHandle userHandle = android.os.Process.myUserHandle();
+        UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        if (userManager == null) return false;
+        return userManager.getSerialNumberForUser(userHandle) != android.os.Process.ROOT_UID;
+    }
+
     // Enforce policies and configurations in the work profile
     public static void enforceWorkProfilePolicies(Context context) {
         DevicePolicyManager manager = context.getSystemService(DevicePolicyManager.class);
@@ -202,7 +213,7 @@ public class Utility {
                 adminComponent,
                 actionSendFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
-        
+
         // Browser intents are allowed from work profile to parent
         IntentFilter browsableIntentFilter = new IntentFilter(Intent.ACTION_VIEW);
         browsableIntentFilter.addCategory(Intent.CATEGORY_BROWSABLE);
@@ -248,7 +259,7 @@ public class Utility {
     // Detect if the device is MIUI
     public static boolean isMIUI() {
         try {
-            Process proc = Runtime.getRuntime().exec("getprop ro.miui.ui.version.name");
+            java.lang.Process proc = Runtime.getRuntime().exec("getprop ro.miui.ui.version.name");
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = reader.readLine().trim();
             return !line.isEmpty();

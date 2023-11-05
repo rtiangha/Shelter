@@ -92,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
             // We should never start the main activity here.
             android.util.Log.d("MainActivity", "started in user profile. stopping.");
             finish();
+        } else if (Utility.isSecondaryProfile(this)) {
+            android.util.Log.w("MainActivity", "started in secondary profile (work profile not supported here). stopping.");
+            Toast.makeText(this, getString(R.string.secondary_profile_unsupported), Toast.LENGTH_LONG).show();
+            finish();
         } else {
             init();
         }
