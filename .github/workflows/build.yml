@@ -71,16 +71,23 @@ jobs:
           DROID_KEY_ALIAS: ${{ secrets.DROID_KEY_ALIAS }}
           DROID_KEYSTORE_PASS: ${{ secrets.DROID_KEYSTORE_PASS }}
           DROID_KEY_PASS: ${{ secrets.DROID_KEY_PASS }}
-      - name: Pack
-        run: ../.ci/pack.sh
-        working-directory: app
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Sign app APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.DROID_KEYSTORE_B64 }}
+          alias: ${{ secrets.DROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.DROID_KEYSTORE_PASS }}
+          keyPassword: ${{ secrets.DROID_KEY_PASS }}
         env:
-          UNPACKED: 1
+          BUILD_TOOLS_VERSION: "36.0.0"
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.OS }}-${{ env.TARGET }}
-          path: app/artifacts/
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
   release:
     runs-on: ubuntu-latest
     needs: [android]
