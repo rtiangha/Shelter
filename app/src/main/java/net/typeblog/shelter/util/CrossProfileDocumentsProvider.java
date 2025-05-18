@@ -135,12 +135,13 @@ public class CrossProfileDocumentsProvider extends DocumentsProvider {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Cursor queryDocument(String documentId, String[] projection) {
         ensureServiceBound();
         final MatrixCursor result = new MatrixCursor(projection == null ? DEFAULT_DOCUMENT_PROJECTION : projection);
         Map<String, Serializable> fileInfo;
         try {
-            fileInfo = mService.loadFileMeta(documentId);
+            fileInfo = (Map<String, Serializable>) mService.loadFileMeta(documentId);
         } catch (RemoteException e) {
             return null;
         }
@@ -149,11 +150,12 @@ public class CrossProfileDocumentsProvider extends DocumentsProvider {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) {
         ensureServiceBound();
         List<Map<String, Serializable>> files;
         try {
-            files = mService.loadFiles(parentDocumentId);
+            files = (List<Map<String, Serializable>>) mService.loadFiles(parentDocumentId);
         } catch (RemoteException e) {
             return null;
         }
