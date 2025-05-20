@@ -213,9 +213,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Fragment createFragment(int position) {
                 if (position == 0) {
-                    return AppListFragment.newInstance(mServiceMain, false);
-                } else if (position == 1) {
                     return AppListFragment.newInstance(mServiceWork, true);
+                } else if (position == 1) {
+                    return AppListFragment.newInstance(mServiceMain, false);
                 } else {
                     throw new RuntimeException("How did this happen?");
                 }
@@ -230,8 +230,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 int[] menuIds = new int[]{
-                        R.id.bottom_navigation_main,
-                        R.id.bottom_navigation_work
+                        R.id.bottom_navigation_work,
+                        R.id.bottom_navigation_main
                 };
                 nav.setSelectedItemId(menuIds[position]);
             }
@@ -239,9 +239,9 @@ public class MainActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener((MenuItem item) -> {
             int itemId = item.getItemId();
             if (itemId == R.id.bottom_navigation_main) {
-                pager.setCurrentItem(0);
-            } else if (itemId == R.id.bottom_navigation_work) {
                 pager.setCurrentItem(1);
+            } else if (itemId == R.id.bottom_navigation_work) {
+                pager.setCurrentItem(0);
             }
             return true;
         });
