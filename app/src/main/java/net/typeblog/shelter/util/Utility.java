@@ -246,6 +246,8 @@ public class Utility {
         manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_INSTALL_APPS);
         manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES);
         manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_UNINSTALL_APPS);
+        // Allow debug, after reboot should open Shelter at least 1 time to call this function
+        manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             // Polyfill for UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES
