@@ -73,7 +73,7 @@ jobs:
           DROID_KEY_PASS: ${{ secrets.DROID_KEY_PASS }}
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Sign app APK
-        uses: r0adkll/sign-android-release@v1
+        uses: kevin-david/zipalign-sign-android-release@v2
         id: sign_app
         with:
           releaseDirectory: app/build/outputs/apk/release
@@ -81,6 +81,7 @@ jobs:
           alias: ${{ secrets.DROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.DROID_KEYSTORE_PASS }}
           keyPassword: ${{ secrets.DROID_KEY_PASS }}
+          zipAlign: true
         env:
           BUILD_TOOLS_VERSION: "36.0.0"
       - name: Upload
