@@ -66,12 +66,6 @@ jobs:
           check-latest: true
       - name: Build
         run: JAVA_HOME=$JAVA_HOME_21_X64 ./.ci/android.sh
-        env:
-          DROID_KEYSTORE_B64: ${{ secrets.DROID_KEYSTORE_B64 }}
-          DROID_KEY_ALIAS: ${{ secrets.DROID_KEY_ALIAS }}
-          DROID_KEYSTORE_PASS: ${{ secrets.DROID_KEYSTORE_PASS }}
-          DROID_KEY_PASS: ${{ secrets.DROID_KEY_PASS }}
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Sign app APK
         uses: kevin-david/zipalign-sign-android-release@v2
         id: sign_app
