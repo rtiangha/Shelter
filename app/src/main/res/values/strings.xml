@@ -35,8 +35,8 @@
     <string name="app_installing">Installing...</string>
 
     <!-- Main UI -->
-    <string name="fragment_profile_main">Main</string>
-    <string name="fragment_profile_work">Shelter</string>
+    <string name="fragment_profile_main">Personal</string>
+    <string name="fragment_profile_work">Work</string>
     <string name="list_item_disabled">[Frozen] %s</string>
     <string name="batch_operation">Batch operation</string>
 
