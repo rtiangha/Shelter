@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Top-level Gradle (root) - checks top-level build.gradle, gradle.properties, etc.
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Module Gradle (app) - checks app/build.gradle and any module-specific files
+  - package-ecosystem: "gradle"
+    directory: "/app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions workflows - keeps actions used in .github/workflows up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
