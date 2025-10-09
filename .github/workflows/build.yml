@@ -13,7 +13,7 @@ jobs:
     if: ${{ !github.head_ref }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Pack
@@ -32,7 +32,7 @@ jobs:
       OS: android
       TARGET: universal
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up cache
@@ -57,15 +57,15 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: zip unzip python3 ccache apksigner
-      - name: Install JDK 21 
-        uses: actions/setup-java@v4
+      - name: Install JDK 25 
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: 'gradle'
           check-latest: true
       - name: Build
-        run: JAVA_HOME=$JAVA_HOME_21_X64 ./.ci/android.sh
+        run: JAVA_HOME=$JAVA_HOME_25_X64 ./.ci/android.sh
       - name: Sign app APK
         uses: kevin-david/zipalign-sign-android-release@v2
         id: sign_app
@@ -88,7 +88,7 @@ jobs:
     needs: [android]
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
       - name: Create release
         uses: actions/create-release@v1
         env:
