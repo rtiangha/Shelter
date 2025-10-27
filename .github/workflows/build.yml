@@ -19,7 +19,7 @@ jobs:
       - name: Pack
         run: ./.ci/source.sh
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: source
           path: artifacts/
@@ -79,7 +79,7 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "36.0.0"
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.OS }}-${{ env.TARGET }}
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
