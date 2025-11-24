@@ -13,7 +13,7 @@ jobs:
     if: ${{ !github.head_ref }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Pack
@@ -32,7 +32,7 @@ jobs:
       OS: android
       TARGET: universal
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up cache
