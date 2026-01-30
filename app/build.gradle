@@ -38,11 +38,14 @@ def getVersionName = { ->
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 35
     defaultConfig {
+        ndk {
+            abiFilters "arm64-v8a"
+        }
         applicationId "net.typeblog.shelter"
-        minSdkVersion = 24
-        targetSdkVersion = 36
+        minSdkVersion 35 
+        targetSdkVersion 35
         versionCode getVersionCode()
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -64,8 +67,8 @@ android {
         })
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     lint {
         disable 'MissingTranslation', 'ExtraTranslation', 'GoogleAppIndexingWarning', 'InvalidFragmentVersionForActivityResult'
