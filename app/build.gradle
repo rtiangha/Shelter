@@ -55,10 +55,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    applicationVariants.all { variant ->
-        if (variant.name == "debug") {
-            variant.outputs.each { o -> o.versionCodeOverride = System.currentTimeSeconds() }
-        }
+    androidComponents {
+        onVariants(selector().all(), { variant ->
+            if (variant.name == "debug") {
+                variant.outputs.forEach { output ->
+                    output.versionCode.set((int) (System.currentTimeMillis() / 1000))
+                }
+            }
+        })
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
