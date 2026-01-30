@@ -1,4 +1,4 @@
 [submodule "libs/SetupWizardLibrary"]
 	path = libs/SetupWizardLibrary
 	url = https://github.com/rtiangha/SetupWizardLibrary.git
-	branch = custom 
+	branch = galaxy-s21 
