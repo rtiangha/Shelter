@@ -38,12 +38,11 @@ def getVersionName = { ->
 }
 
 android {
-    compileSdk = 35
-    buildToolsVersion = '35.0.0'
+    compileSdk = 36
     defaultConfig {
         applicationId "net.typeblog.shelter"
         minSdkVersion = 24
-        targetSdkVersion = 35
+        targetSdkVersion = 36
         versionCode getVersionCode()
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
