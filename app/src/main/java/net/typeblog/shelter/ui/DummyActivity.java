@@ -88,8 +88,6 @@ public class DummyActivity extends Activity {
             UNINSTALL_PACKAGE,
             UNFREEZE_AND_LAUNCH);
 
-    private static final int REQUEST_INSTALL_PACKAGE = 1;
-    private static final int REQUEST_PERMISSION_EXTERNAL_STORAGE= 2;
     private static final int REQUEST_PERMISSION_POST_NOTIFICATIONS = 3;
 
     private static boolean sHasRequestedPermission = false;
@@ -214,23 +212,8 @@ public class DummyActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_INSTALL_PACKAGE) {
-            appInstallFinished(resultCode);
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_PERMISSION_EXTERNAL_STORAGE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                doStartFileShuttle();
-            } else {
-                finish();
-            }
-        } else if (requestCode == REQUEST_PERMISSION_POST_NOTIFICATIONS) {
+        if (requestCode == REQUEST_PERMISSION_POST_NOTIFICATIONS) {
             // The notification permission is requested fire-and-forget (see
             // maybeRequestNotificationPermission); the action has already been
             // dispatched, so there is nothing to continue here regardless of the result.
@@ -241,19 +224,9 @@ public class DummyActivity extends Activity {
 
     private void actionFinalizeProvision() {
         if (mIsProfileOwner) {
-            // Only notify the main profile on pre-Oreo
-            // After Oreo, since we use the activity-based finalization flow,
-            // the setup wizard will wait until we finish finalization before returning
-            // (Note: the actual finalization is done by common code in onCreate)
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                // This is the action used by DeviceAdminReceiver to finalize the setup
-                // The work has been finished in onCreate(), now we just have to
-                // inform the main profile about this
-                Intent intent = new Intent(FINALIZE_PROVISION);
-                // We don't need signature for this intent
-                Utility.transferIntentToProfileUnsigned(this, intent);
-                startActivity(intent);
-            }
+            // The actual finalization is done by common code in onCreate(). The
+            // activity-based flow (ACTION_PROVISIONING_SUCCESSFUL) means the setup
+            // wizard waits for us to finish before returning, so nothing more is needed.
             finish();
         } else {
             // Set the flag telling MainActivity that we have now finished provisioning
@@ -322,44 +295,26 @@ public class DummyActivity extends Activity {
             uri = Uri.fromParts("package", getIntent().getStringExtra("package"), null);
         }
         StrictMode.VmPolicy policy = StrictMode.getVmPolicy();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O || getIntent().hasExtra("direct_install_apk")) {
-            if (getIntent().hasExtra("apk")) {
-                // I really have no idea about why the "package:" uri do not work
-                // after Android O, anyway we fall back to using the apk path...
-                // Since I have plan to support pre-O in later versions, I keep this
-                // branch in case that we reduce minSDK in the future.
-                uri = Uri.fromFile(new File(getIntent().getStringExtra("apk")));
-            } else if (getIntent().hasExtra("direct_install_apk")) {
-                // Directly install an APK inside the profile
-                // The APK will be an Uri from our own FileProviderProxy
-                // which points to an opened Fd in another profile.
-                // We must close the Fd when we finish.
-                uri = getIntent().getParcelableExtra("direct_install_apk");
-            }
-
-            // A permissive VmPolicy must be set to work around
-            // the limitation on cross-application Uri
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
+        if (getIntent().hasExtra("apk")) {
+            // The "package:" uri does not work after Android O; fall back to the apk path.
+            uri = Uri.fromFile(new File(getIntent().getStringExtra("apk")));
+        } else if (getIntent().hasExtra("direct_install_apk")) {
+            // Directly install an APK inside the profile
+            // The APK will be an Uri from our own FileProviderProxy
+            // which points to an opened Fd in another profile.
+            // We must close the Fd when we finish.
+            uri = getIntent().getParcelableExtra("direct_install_apk");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            try {
-                // For Q, since we use the more "manual" method of installation,
-                // we have to also pass the split APKs ("Configuration APKs" as Google calls it)
-                // Although these are available since API 26, we don't need to
-                // take care of them for versions before Q since we don't actually
-                // install the APKs before Q.
-                actionInstallPackageQ(uri, getIntent().getStringArrayExtra("split_apks"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE, uri);
-            intent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, getPackageName());
-            intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-            intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivityForResult(intent, REQUEST_INSTALL_PACKAGE);
+        // A permissive VmPolicy must be set to work around
+        // the limitation on cross-application Uri
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
+
+        try {
+            // Pass the split APKs ("Configuration APKs") along with the base APK
+            actionInstallPackageQ(uri, getIntent().getStringArrayExtra("split_apks"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         // Restore the VmPolicy anyway
@@ -422,24 +377,6 @@ public class DummyActivity extends Activity {
     }
 
     private void actionUninstallPackage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            actionUninstallPackageQ();
-            return;
-        }
-
-        Uri uri = Uri.fromParts("package", getIntent().getStringExtra("package"), null);
-        Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE, uri);
-        intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-        // Currently, Install & Uninstall share the same logic
-        // after starting the system PackageInstaller
-        // because the only thing to do is to call the callback
-        // with the result code.
-        // If ANY separate logic is added for any of them,
-        // the request code should be separated.
-        startActivityForResult(intent, REQUEST_INSTALL_PACKAGE);
-    }
-
-    private void actionUninstallPackageQ() {
         PackageInstaller pi = getPackageManager().getPackageInstaller();
         Intent intent = new Intent(this, DummyActivity.class);
         intent.setAction(PACKAGEINSTALLER_CALLBACK);
@@ -585,21 +522,11 @@ public class DummyActivity extends Activity {
     }
 
     private void actionStartFileShuttle() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            // This requires the permission WRITE_EXTERNAL_STORAGE
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                doStartFileShuttle();
-            } else {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_EXTERNAL_STORAGE);
-            }
+        // The all file access permission should have been granted when enabling File Shuttle.
+        if (Utility.checkAllFileAccessPermission() && Utility.checkSystemAlertPermission(this)) {
+            doStartFileShuttle();
         } else {
-            // The all file access permission should have been granted when enabling File Shuttle
-            // since Android R.
-            if (Utility.checkAllFileAccessPermission() && Utility.checkSystemAlertPermission(this)) {
-                doStartFileShuttle();
-            } else {
-                finish();
-            }
+            finish();
         }
     }
 

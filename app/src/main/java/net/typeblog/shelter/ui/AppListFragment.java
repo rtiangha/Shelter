@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -219,8 +218,7 @@ public class AppListFragment extends BaseFragment {
                         try {
                             mCrossProfileWidgetProviders.addAll(mService.getCrossProfileWidgetProviders());
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                                mCrossProfilePackages.addAll(mService.getCrossProfilePackages());
+                            mCrossProfilePackages.addAll(mService.getCrossProfilePackages());
                         } catch (RemoteException ignored) {
 
                         }
@@ -313,14 +311,12 @@ public class AppListFragment extends BaseFragment {
             crossProfileWdiegt.setChecked(
                     mCrossProfileWidgetProviders.contains(mSelectedApp.getPackageName()));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                MenuItem crossProfileInteraction =
-                        menu.add(Menu.NONE, MENU_ITEM_ALLOW_CROSS_PROFILE_INTERACTION, Menu.NONE,
-                                R.string.allow_cross_profile_interaction);
-                crossProfileInteraction.setCheckable(true);
-                crossProfileInteraction.setChecked(
-                        mCrossProfilePackages.contains(mSelectedApp.getPackageName()));
-            }
+            MenuItem crossProfileInteraction =
+                    menu.add(Menu.NONE, MENU_ITEM_ALLOW_CROSS_PROFILE_INTERACTION, Menu.NONE,
+                            R.string.allow_cross_profile_interaction);
+            crossProfileInteraction.setCheckable(true);
+            crossProfileInteraction.setChecked(
+                    mCrossProfilePackages.contains(mSelectedApp.getPackageName()));
 
             // TODO: If we implement God Mode (i.e. Shelter as device owner), we should
             // TODO: use two different lists to store auto freeze apps because we'll be

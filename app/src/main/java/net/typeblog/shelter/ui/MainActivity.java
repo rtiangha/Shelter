@@ -41,6 +41,8 @@ import net.typeblog.shelter.util.SettingsManager;
 import net.typeblog.shelter.util.UriForwardProxy;
 import net.typeblog.shelter.util.Utility;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     public static final String BROADCAST_CONTEXT_MENU_CLOSED = "net.typeblog.shelter.broadcast.CONTEXT_MENU_CLOSED";
     public static final String BROADCAST_SEARCH_FILTER_CHANGED = "net.typeblog.shelter.broadcast.SEARCH_FILTER_CHANGED";
@@ -324,10 +326,12 @@ public class MainActivity extends AppCompatActivity {
 
             // Restart the activity if the services are no longer alive
             // This might be caused by KillerService being destroyed and
-            // bringing all the other services with it
-            Intent intent = getIntent();
+            // bringing all the other services with it.
+            // Build a fresh explicit intent rather than reusing getIntent(): MainActivity
+            // is only ever launched without extras, and relaunching a received intent is
+            // an unsafe-intent-launch pattern.
             finish();
-            startActivity(intent);
+            startActivity(new Intent(this, MainActivity.class));
         }
     }
 
@@ -381,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 Intent intent = new Intent(BROADCAST_SEARCH_FILTER_CHANGED);
-                intent.putExtra("text", newText.toLowerCase().trim());
+                intent.putExtra("text", newText.toLowerCase(Locale.getDefault()).trim());
                 LocalBroadcastManager.getInstance(MainActivity.this)
                         .sendBroadcast(intent);
                 return true;

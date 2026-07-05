@@ -24,12 +24,12 @@ def getVersionName = { ->
 
 android {
     namespace = 'net.typeblog.shelter'
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "net.typeblog.shelter"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 30
+        targetSdk = 36
         versionCode = getVersionCode()
         versionName = getVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -50,6 +50,18 @@ android {
 
     lint {
         disable 'MissingTranslation', 'ExtraTranslation', 'GoogleAppIndexingWarning', 'InvalidFragmentVersionForActivityResult'
+        // The locale files are inherited community translations; this fork has no
+        // translators, so value-level issues in languages we can't verify are out of
+        // scope. New/changed strings live in the default values/strings.xml and fall
+        // back to English in every locale. (Untranslatable stays enabled: it catches a
+        // real bug — translating strings marked translatable="false" like URLs/brand.)
+        disable 'TypographyEllipsis', 'Typos', 'LocaleFolder'
+        // Informational version/asset nags that change over time and are handled by
+        // deliberate upgrade cycles rather than per-build.
+        disable 'GradleDependency', 'AndroidGradlePluginVersion', 'IconDuplicates'
+        // targetSdk 36 (Android 16) is the latest stable; lint only clears OldTargetApi
+        // when targeting the current preview SDK, which is not a valid release target.
+        disable 'OldTargetApi'
     }
 
     buildFeatures {

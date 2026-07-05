@@ -6,19 +6,14 @@
     <string name="first_run_alert_cancel">Adiós</string>
     <string name="first_run_alert_continue">Continuar</string>
     <string name="device_admin_desc">Servicio de aislamiento de aplicaciones</string>
-    <string name="device_admin_explanation">Shelter necesita convertirse en el administrador del dispositivo para realizar tareas de aislamiento.</string>
     <string name="notifications_important">Importante</string>
-    <string name="finish_provision_title">Haz click aquí para finalizar la configuración de Shelter</string>
     <string name="show_all_warning">Manipular aplicaciones ocultas en la lista podría causar fallos y toda clase de comportamientos inesperados. Sin embargo, esta característica podría ser de utilidad cuando las ROMs personalizadas del fabricante no habilitan todas las aplicaciones del sistema necesarias dentro del perfil de trabajo por defecto. Si continuas, estas por tu cuenta.</string>
     <string name="documents_ui">Abrir interfaz de documentos</string>
     <string name="settings">Configuraciones</string>
     <string name="settings_interaction">Interacción</string>
     <string name="settings_cross_profile_file_chooser">Pasarela de archivos</string>
-    <string name="finish_provision_desc">Felicitaciones! Se encuentra a un click de terminar la configuración de Shelter.</string>
     <string name="provision_finished">Configuración de Shelter completa. Reiniciando Shelter a continuación. Si Shelter no se inicia de manera automática puedes iniciarlo nuevamente desde tu lanzador de aplicaciones.</string>
-    <string name="msg_device_unsupported">Permiso denegado o dispositivo no soportado</string>
     <string name="work_profile_not_found">Perfil de trabajo no encontrado. Por favor reinicia la aplicación para aprovisionar el perfil.</string>
-    <string name="work_profile_provision_failed">No se puede proveer un perfil de trabajo. Puedes intentar de nuevo reiniciando Shelter.</string>
     <string name="work_mode_disabled">Parece que has deshabilitado el modo de trabajo mientras Shelter se reiniciaba. Si lo has habilitado ahora, por favor reinicia Shelter de nuevo.</string>
     <string name="clone_success">Aplicación \"%s\" clonada exitosamente</string>
     <string name="uninstall_success">Aplicación \"%s\" desinstalada exitosamente</string>
@@ -86,7 +81,6 @@
     <string name="settings_source_code">Código fuente</string>
     <string name="settings_translate">Traducir</string>
     <string name="settings_bug_report">Reporte de errores/ Seguimiento de problemas</string>
-    <string name="shortcut_create_success">Acceso directo creado en tu lanzador de aplicaciones.</string>
     <string name="request_usage_stats">Shelter necesita el permiso <b> Estadísticas de uso</b> para hacer esto. Por favor habilita el permiso para <b>AMBAS</b> de las aplicaciones Shelter mostradas en la ventana siguiente a que presiones \"Ok\". No hacerlo causara que esta característica no funcione adecuadamente.</string>
     <string name="launch_app_fail">No se puede lanzar la aplicación %s por que no tiene interfaz gráfica.</string>
     <string name="request_storage_manager">Shelter necesita acceder a <b>Todos los archivos</b> para el selector de archivos. Por favor habilita el permiso para <b>AMBAS</b> aplicaciones Shelter (Personal / Trabajo) en la ventana siguiente al presionar \"Ok\".</string>

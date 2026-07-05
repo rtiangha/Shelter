@@ -1,5 +1,6 @@
 package net.typeblog.shelter.util;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +10,13 @@ import net.typeblog.shelter.services.PaymentStubService;
 import net.typeblog.shelter.ui.DummyActivity;
 
 public class SettingsManager {
+    // Not a leak: initialized from ShelterApplication with the application context,
+    // which lives for the whole process lifetime.
+    @SuppressLint("StaticFieldLeak")
     private static SettingsManager sInstance = null;
 
     public static void initialize(Context context) {
-        sInstance = new SettingsManager(context);
+        sInstance = new SettingsManager(context.getApplicationContext());
     }
 
     public static SettingsManager getInstance() {

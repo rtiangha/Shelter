@@ -9,7 +9,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -138,8 +137,7 @@ public class ShelterService extends Service {
                 intent.setComponent(new ComponentName(ShelterService.this, DummyActivity.class));
                 intent.putExtra("package", app.getPackageName());
                 intent.putExtra("apk", app.getSourceDir());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    intent.putExtra("split_apks", app.getSplitApks());
+                intent.putExtra("split_apks", app.getSplitApks());
 
                 // Send the callback to the DummyActivity
                 Bundle callbackExtra = new Bundle();
@@ -308,8 +306,6 @@ public class ShelterService extends Service {
         public List<String> getCrossProfilePackages() throws RemoteException {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile packages without being profile owner");
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                throw new IllegalStateException("Cross-profile packages support is only available on Android 11 and later");
             return new ArrayList<>(mPolicyManager.getCrossProfilePackages(mAdminComponent));
         }
 
@@ -317,8 +313,6 @@ public class ShelterService extends Service {
         public void setCrossProfilePackages(List<String> packages) throws RemoteException {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile packages without being profile owner");
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                throw new IllegalStateException("Cross-profile packages support is only available on Android 11 and later");
             mPolicyManager.setCrossProfilePackages(mAdminComponent, new HashSet<>(packages));
         }
     };

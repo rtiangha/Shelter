@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shelter opts out of backup entirely (see android:allowBackup="false"); this is the
+     Android 11 (fullBackupContent) counterpart to xml/data_extraction_rules.xml. -->
+<full-backup-content>
+    <exclude domain="root" path="." />
+</full-backup-content>

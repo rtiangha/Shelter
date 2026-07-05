@@ -4,8 +4,8 @@
     <string name="first_run_alert_continue">Continue</string>
     <string name="device_admin_label" translatable="false">Shelter</string>
     <string name="device_admin_desc">App Isolation Service</string>
-    <string name="device_admin_explanation">Shelter needs to become Device Admin in order to perform its isolation tasks.</string>
     <string name="payment_stub_description">Payment Service Stub (DO NOT USE)</string>
+    <string name="app_icon_description">App icon</string>
 
     <!-- Setup Wizard -->
     <string name="setup_wizard_welcome">Welcome to Shelter</string>
@@ -27,8 +27,6 @@
 
     <!-- Notifications -->
     <string name="notifications_important">Shelter Important</string>
-    <string name="finish_provision_title">Click here to finish setting up Shelter</string>
-    <string name="finish_provision_desc">Congratulations! You are one click away from finishing setting up Shelter.</string>
     <string name="service_title">Shelter Service</string>
     <string name="service_desc">Shelter is now running &#8230;</string>
     <string name="service_auto_freeze_title">Auto-freeze pending</string>
@@ -97,10 +95,7 @@
 
     <!-- Toast Long Texts -->
     <string name="provision_finished">Shelter setup complete. Now restarting Shelter. If Shelter didn\'t start automatically, you may launch it again from your launcher.</string>
-    <string name="msg_device_unsupported">Permission is denied or Unsupported device</string>
-    <string name="secondary_profile_unsupported">Shelter can only run in the owner profile (Work Profile not supported in secondary profiles).</string>
     <string name="work_profile_not_found">Work profile not found. Please restart the app to re-provision the profile.</string>
-    <string name="work_profile_provision_failed">Cannot provision work profile. You may try again by restarting Shelter.</string>
     <string name="work_mode_disabled">It looks like you have disabled Work Mode while starting Shelter. If you have enabled it now, please start Shelter again.</string>
     <string name="clone_success">Application \"%s\" cloned successfully</string>
     <string name="uninstall_success">Application \"%s\" uninstalled successfully</string>
@@ -111,7 +106,6 @@
     <string name="unsupported_launcher">Cannot add shortcuts to your launcher. Please contact the developer for more information.</string>
     <string name="app_context_menu_title">Operations for %s</string>
     <string name="freeze_all_success">All apps in \"Auto Freeze\" list have been frozen successfully.</string>
-    <string name="shortcut_create_success">Shortcut created on your launcher.</string>
     <string name="request_usage_stats">Shelter needs <b>Usage Stats</b> permission to do this. Please enable the permission for <b>BOTH OF THE TWO</b> Shelter apps shown in the dialog after you press \"Ok\". Failing to do so will cause this feature to not work properly.</string>
     <string name="launch_app_fail">Cannot launch app %s because it has no GUI.</string>
     <string name="request_storage_manager">Shelter needs access to <b>All Files</b> for File Shuttle. Please enable the permission for <b>BOTH OF THE TWO </b> (Personal / Work) Shelter apps shown in the dialog after you press \"Ok\".</string>

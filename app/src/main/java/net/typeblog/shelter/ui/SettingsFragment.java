@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.Settings;
@@ -116,12 +115,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         mPrefSkipForeground.setChecked(mManager.getSkipForegroundEnabled());
         mPrefSkipForeground.setOnPreferenceChangeListener(this);
 
-        // Disable FileSuttle on Q for now
-        // Supported on R and beyond
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-            mPrefCrossProfileFileChooser.setEnabled(false);
-        }
-
         // Disable FileShuttle for Android Go
         // as it requires SYSTEM_ALERT_WINDOW which
         // is not allowed on Go devices
@@ -160,38 +153,36 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 return true;
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Request all files permission on R and beyond
-                boolean hasPermission = ensureSpecialAccessPermission(() -> {
-                    try {
-                        return mServiceWork.hasAllFileAccessPermission() && Utility.checkAllFileAccessPermission();
-                    } catch (RemoteException e) {
-                        return false;
-                    }
-                }, R.string.request_storage_manager, Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-
-                if (!hasPermission) {
+            // Request all files permission
+            boolean hasPermission = ensureSpecialAccessPermission(() -> {
+                try {
+                    return mServiceWork.hasAllFileAccessPermission() && Utility.checkAllFileAccessPermission();
+                } catch (RemoteException e) {
                     return false;
                 }
+            }, R.string.request_storage_manager, Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
 
-                // Also needs system alert window permission
-                // because File Shuttle needs to start activities in the background
-                // We cannot do the same notification trick as in initial setup
-                // because it would be too annoying having to click a notification
-                // every time a user tries to use File Shuttle.
-                // NOTE: Enabling this permission may mask some bugs with background
-                // activities. Always test with this disabled.
-                hasPermission = ensureSpecialAccessPermission(() -> {
-                    try {
-                        return mServiceWork.hasSystemAlertPermission() && Utility.checkSystemAlertPermission(getContext());
-                    } catch (RemoteException e) {
-                        return false;
-                    }
-                }, R.string.request_system_alert, Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            if (!hasPermission) {
+                return false;
+            }
 
-                if (!hasPermission) {
+            // Also needs system alert window permission
+            // because File Shuttle needs to start activities in the background
+            // We cannot do the same notification trick as in initial setup
+            // because it would be too annoying having to click a notification
+            // every time a user tries to use File Shuttle.
+            // NOTE: Enabling this permission may mask some bugs with background
+            // activities. Always test with this disabled.
+            hasPermission = ensureSpecialAccessPermission(() -> {
+                try {
+                    return mServiceWork.hasSystemAlertPermission() && Utility.checkSystemAlertPermission(getContext());
+                } catch (RemoteException e) {
                     return false;
                 }
+            }, R.string.request_system_alert, Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+
+            if (!hasPermission) {
+                return false;
             }
 
             mManager.setCrossProfileFileChooserEnabled(true);

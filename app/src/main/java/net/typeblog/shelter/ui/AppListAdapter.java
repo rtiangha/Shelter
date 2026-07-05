@@ -1,5 +1,6 @@
 package net.typeblog.shelter.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -26,9 +27,14 @@ import net.typeblog.shelter.util.ApplicationInfoWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// Selection changes renumber the multi-select order badges on every visible row, and
+// search filtering swaps the entire backing list, so a full-list refresh is intentional
+// here rather than fine-grained change events.
+@SuppressLint("NotifyDataSetChanged")
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView mIcon;
@@ -310,8 +316,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
             // Filter by search query
             mList.addAll(mOrigList.stream()
                     .filter((app) ->
-                            app.getPackageName().toLowerCase().contains(mSearchQuery)
-                                    || app.getLabel().toLowerCase().contains(mSearchQuery))
+                            app.getPackageName().toLowerCase(Locale.getDefault()).contains(mSearchQuery)
+                                    || app.getLabel().toLowerCase(Locale.getDefault()).contains(mSearchQuery))
                     .collect(Collectors.toList()));
         }
         notifyDataSetChanged();

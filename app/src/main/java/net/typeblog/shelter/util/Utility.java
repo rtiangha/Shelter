@@ -1,6 +1,5 @@
 package net.typeblog.shelter.util;
 
-import android.annotation.TargetApi;
 import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -22,13 +21,11 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Process;
 import android.os.UserManager;
 import android.os.UserHandle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContract;
@@ -60,19 +57,8 @@ public class Utility {
                 .isProfileOwnerApp(context.getPackageName());
     }
 
-    // Polyfill for String.join
     public static String stringJoin(String delimiter, String[] list) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return String.join(delimiter, list);
-        } else {
-            if (list.length == 0) return "";
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < list.length - 1; i++) {
-                sb.append(list[i]).append(delimiter);
-            }
-            sb.append(list[list.length - 1]);
-            return sb.toString();
-        }
+        return String.join(delimiter, list);
     }
 
     // Affiliate an Intent to another profile (i.e. the Work profile that we manage)
@@ -249,12 +235,6 @@ public class Utility {
         // Allow debug, after reboot should open Shelter at least 1 time to call this function
         manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            // Polyfill for UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES
-            // Don't use this on Android Oreo and later, it will crash
-            manager.setSecureSetting(adminComponent, Settings.Secure.INSTALL_NON_MARKET_APPS, "1");
-        }
-
         manager.addUserRestriction(adminComponent, UserManager.ALLOW_PARENT_PROFILE_APP_LINKING);
     }
 
@@ -313,46 +293,38 @@ public class Utility {
     }
 
     public static void createLauncherShortcut(Context context, Intent launchIntent, Icon icon, String id, String label) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 
-            if (shortcutManager.isRequestPinShortcutSupported()) {
-                ShortcutInfo info = new ShortcutInfo.Builder(context, id)
-                        .setIntent(launchIntent)
-                        .setIcon(icon)
-                        .setShortLabel(label)
-                        .setLongLabel(label)
-                        .build();
-                Intent addIntent = shortcutManager.createShortcutResultIntent(info);
-                shortcutManager.requestPinShortcut(info,
-                        PendingIntent.getBroadcast(context, 0, addIntent, PendingIntent.FLAG_IMMUTABLE).getIntentSender());
-            } else {
-                // TODO: Maybe implement this for launchers without pin shortcut support?
-                // TODO: Should be the same with the fallback for Android < O
-                // for now just show unsupported
-                Toast.makeText(context, context.getString(R.string.unsupported_launcher), Toast.LENGTH_LONG).show();
-            }
+        if (shortcutManager.isRequestPinShortcutSupported()) {
+            ShortcutInfo info = new ShortcutInfo.Builder(context, id)
+                    .setIntent(launchIntent)
+                    .setIcon(icon)
+                    .setShortLabel(label)
+                    .setLongLabel(label)
+                    .build();
+            Intent addIntent = shortcutManager.createShortcutResultIntent(info);
+            shortcutManager.requestPinShortcut(info,
+                    PendingIntent.getBroadcast(context, 0, addIntent, PendingIntent.FLAG_IMMUTABLE).getIntentSender());
         } else {
-            Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
-            shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent);
-            shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, label);
-            shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, drawableToBitmap(icon.loadDrawable(context)));
-            context.sendBroadcast(shortcutIntent);
-            Toast.makeText(context, R.string.shortcut_create_success, Toast.LENGTH_SHORT).show();
+            // TODO: Maybe implement this for launchers without pin shortcut support?
+            Toast.makeText(context, context.getString(R.string.unsupported_launcher), Toast.LENGTH_LONG).show();
         }
     }
 
     public static int getMediaStoreId(Context context, String path) {
-        Cursor cursor = context.getContentResolver().query(
+        try (Cursor cursor = context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 new String[]{MediaStore.MediaColumns._ID},
                 MediaStore.MediaColumns.DATA + " LIKE ? ",
-                new String[]{path}, null);
-        if (cursor == null || cursor.getCount() == 0) {
-            return -1;
-        } else {
-            cursor.moveToFirst();
-            return cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                new String[]{path}, null)) {
+            if (cursor == null || !cursor.moveToFirst()) {
+                return -1;
+            }
+            int idColumn = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+            if (idColumn < 0) {
+                return -1;
+            }
+            return cursor.getInt(idColumn);
         }
     }
 
@@ -431,8 +403,7 @@ public class Utility {
         return checkSpecialAccessPermission(context, AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
     }
 
-    // Check if all file access r/w is granted
-    @TargetApi(Build.VERSION_CODES.R)
+    // Check if all file access r/w is granted (MANAGE_EXTERNAL_STORAGE)
     public static boolean checkAllFileAccessPermission() {
         return Environment.isExternalStorageManager();
     }
@@ -461,28 +432,8 @@ public class Utility {
     }
 
     public static Notification buildNotification(Context context, boolean important, String ticker, String title, String desc, int icon) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return buildNotificationOreo(context, important, ticker, title, desc, icon);
-        } else {
-            return buildNotificationLollipop(context, important, ticker, title, desc, icon);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static Notification buildNotificationLollipop(Context context, boolean important, String ticker, String title, String desc, int icon) {
-        return new Notification.Builder(context)
-                .setTicker(ticker)
-                .setContentTitle(title)
-                .setContentText(desc)
-                .setSmallIcon(icon)
-                .setPriority(important ? Notification.PRIORITY_MAX : Notification.PRIORITY_MIN)
-                .build();
-    }
-
-    @TargetApi(Build.VERSION_CODES.O)
-    private static Notification buildNotificationOreo(Context context, boolean important, String ticker, String title, String desc, int icon) {
         String id = important ? NOTIFICATION_CHANNEL_IMPORTANT : NOTIFICATION_CHANNEL_ID;
-        // Android O and later: Notification Channel
+        // Notification channel
         NotificationManager nm = context.getSystemService(NotificationManager.class);
         if (nm.getNotificationChannel(id) == null) {
             NotificationChannel chan = new NotificationChannel(

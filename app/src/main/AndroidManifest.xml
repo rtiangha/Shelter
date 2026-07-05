@@ -21,17 +21,17 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.NFC" />
-
-    <!-- For querying apps on Android R and later -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.MAIN"/>
-        </intent>
-    </queries>
+    <!-- Shelter's core function is enumerating and managing every installed app
+         (including disabled/frozen/non-launchable ones), and in the main profile it is
+         not a profile owner, so it needs full package visibility on Android R and later. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:name=".ShelterApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_egg"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_egg_round"
@@ -140,10 +140,14 @@
 
         <!-- Core service running on both the main profile and the work profile -->
         <!-- Actions like cloning / freezing apps will be performed by this service -->
+        <!-- systemExempted is valid at runtime because Shelter is a profile owner /
+             device policy controller; lint cannot detect that exemption and instead
+             demands an exact-alarm permission Shelter neither needs nor uses. -->
         <service android:name=".services.ShelterService"
                 android:exported="true"
                 android:foregroundServiceType="systemExempted"
-                android:permission="android.permission.BIND_DEVICE_ADMIN"/>
+                android:permission="android.permission.BIND_DEVICE_ADMIN"
+                tools:ignore="ForegroundServicePermission"/>
 
         <!-- Service to forward file information between profiles -->
         <service android:name=".services.FileShuttleService"
@@ -156,7 +160,8 @@
 
         <!-- Service to freeze apps on screen lock -->
         <service android:name=".services.FreezeService"
-            android:foregroundServiceType="systemExempted" />
+            android:foregroundServiceType="systemExempted"
+            tools:ignore="ForegroundServicePermission" />
 
         <!-- Payment stub service -->
         <service android:name=".services.PaymentStubService"
