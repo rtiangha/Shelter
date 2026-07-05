@@ -1,0 +1,28 @@
+[versions]
+agp = "9.2.1"
+appcompat = "1.7.1"
+constraintlayout = "2.2.1"
+espresso = "3.7.0"
+fragment = "1.8.9"
+junit = "4.13.2"
+legacySupportCoreUi = "1.0.0"
+localbroadcastmanager = "1.1.0"
+material = "1.14.0"
+preference = "1.2.1"
+testRunner = "1.7.0"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+androidx-legacy-support-core-ui = { group = "androidx.legacy", name = "legacy-support-core-ui", version.ref = "legacySupportCoreUi" }
+androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
+androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "testRunner" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
