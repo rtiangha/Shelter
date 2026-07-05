@@ -50,7 +50,7 @@
 
         <!-- Setup Wizard -->
         <activity android:name=".ui.SetupWizardActivity"
-            android:theme="@style/SuwThemeMaterial.Light"
+            android:theme="@style/AppTheme"
             android:launchMode="singleTask"
             android:exported="false"/>
 

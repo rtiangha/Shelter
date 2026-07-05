@@ -23,16 +23,16 @@ def getVersionName = { ->
 }
 
 android {
-    namespace 'net.typeblog.shelter'
-    compileSdk 35
+    namespace = 'net.typeblog.shelter'
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "net.typeblog.shelter"
-        minSdk 24
-        targetSdk 35
-        versionCode getVersionCode()
-        versionName getVersionName()
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "net.typeblog.shelter"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = getVersionCode()
+        versionName = getVersionName()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -44,8 +44,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     lint {
@@ -54,7 +54,6 @@ android {
 
     buildFeatures {
         aidl = true
-        buildConfig = true
     }
 }
 
@@ -74,8 +73,6 @@ dependencies {
     implementation libs.androidx.constraintlayout
     implementation libs.material
     implementation libs.androidx.localbroadcastmanager
-    debugImplementation project(path: ':setup-wizard-lib', configuration: 'gingerbreadCompatDebugRuntimeElements')
-    releaseImplementation project(path: ':setup-wizard-lib', configuration: 'gingerbreadCompatReleaseRuntimeElements')
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.runner
     androidTestImplementation libs.androidx.espresso.core
