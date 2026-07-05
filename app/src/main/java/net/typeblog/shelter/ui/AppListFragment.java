@@ -23,13 +23,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.services.IAppInstallCallback;
@@ -185,6 +188,10 @@ public class AppListFragment extends BaseFragment {
         mList.setHasFixedSize(true);
 
         mSwipeRefresh.setOnRefreshListener(this::refresh);
+        mSwipeRefresh.setColorSchemeColors(MaterialColors.getColor(
+                mSwipeRefresh, androidx.appcompat.R.attr.colorPrimary));
+        mSwipeRefresh.setProgressBackgroundColorSchemeColor(MaterialColors.getColor(
+                mSwipeRefresh, com.google.android.material.R.attr.colorSurfaceContainerHigh));
         registerForContextMenu(mList);
 
         return view;
@@ -353,7 +360,7 @@ public class AppListFragment extends BaseFragment {
                     // Cannot clone non-system apps on MIUI
                     // Keep this variable intact when showing the dialog
                     final ApplicationInfoWrapper selectedApp = mSelectedApp;
-                    new AlertDialog.Builder(getContext())
+                    new MaterialAlertDialogBuilder(getContext())
                             .setMessage(R.string.miui_cannot_clone)
                             .setPositiveButton(android.R.string.ok, null)
                             .setNegativeButton(R.string.continue_anyway, (diag, button) ->

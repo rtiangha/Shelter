@@ -16,6 +16,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.services.ILoadIconCallback;
 import net.typeblog.shelter.services.IShelterService;
@@ -129,13 +131,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         // When an item should be displayed in selected state
         // (not necessarily when the user clicked on it; the view might have been recycled)
         void showSelectOrder() {
-            if (!mList.get(mIndex).isHidden()) {
-                itemView.setBackgroundResource(R.color.selectedAppBackground);
-            } else {
-                // The app is both frozen and selected
-                // we use a blended color of the two for its background
-                itemView.setBackgroundResource(R.color.selectedAndDisabledAppBackground);
-            }
+            itemView.setBackgroundColor(MaterialColors.getColor(
+                    itemView, com.google.android.material.R.attr.colorSecondaryContainer));
             mSelectOrder.setVisibility(View.VISIBLE);
             mSelectOrder.setText(String.valueOf(mSelectedIndices.indexOf(mIndex) + 1));
         }
@@ -148,11 +145,16 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
 
         // Set the background when not in the selected state
         void setUnselectedBackground() {
-            if (!mList.get(mIndex).isHidden()) {
-                itemView.setBackground(null);
-            } else {
-                itemView.setBackgroundResource(R.color.disabledAppBackground);
-            }
+            itemView.setBackground(null);
+        }
+
+        // Frozen (hidden) apps are shown with dimmed content instead of
+        // a tinted background, per Material state guidance
+        void setContentAlpha(boolean hidden) {
+            float alpha = hidden ? 0.38f : 1f;
+            mIcon.setAlpha(alpha);
+            mTitle.setAlpha(alpha);
+            mPackage.setAlpha(alpha);
         }
 
         void setIndex(final int index) {
@@ -171,6 +173,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
                 } else {
                     mTitle.setText(info.getLabel());
                 }
+                setContentAlpha(info.isHidden());
 
                 // Special logic when in multi-select mode and this item is selected
                 if (mMultiSelectMode && mSelectedIndices.contains(mIndex)) {

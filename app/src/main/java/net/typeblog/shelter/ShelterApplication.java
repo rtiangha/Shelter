@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 
+import com.google.android.material.color.DynamicColors;
+
 import net.typeblog.shelter.services.FileShuttleService;
 import net.typeblog.shelter.services.ShelterService;
 import net.typeblog.shelter.util.LocalStorageManager;
@@ -17,6 +19,7 @@ public class ShelterApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        DynamicColors.applyToActivitiesIfAvailable(this);
         LocalStorageManager.initialize(this);
         SettingsManager.initialize(this);
     }

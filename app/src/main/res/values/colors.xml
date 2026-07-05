@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F1F9F8</color>
-    <color name="colorAccent">#009688</color>
-    <color name="colorAccentSetupWizard">#FFC107</color>
-    <color name="colorNavigationBar">#E0F2F1</color>
-    <color name="colorNavigationIconTint">@color/colorAccent</color>
-    <color name="colorNavigationIconTintSelected">@color/colorTextPrimary</color>
-    <color name="colorTextPrimary">#333333</color>
-    <color name="colorTextSecondary">#999999</color>
-    <color name="disabledAppBackground">#E0F2F1</color>
-    <color name="selectedAppBackground">#E1E9E8</color>
-    <color name="selectedAndDisabledAppBackground">#CEE1E0</color>
+    <!-- Material 3 color roles, seeded from the brand teal #009688.
+         Dark-theme values live in values-night/colors.xml under the same names.
+         On Android 12+ these are overridden at runtime by dynamic color. -->
+    <color name="md_theme_primary">#006A60</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#74F8E5</color>
+    <color name="md_theme_onPrimaryContainer">#00201C</color>
+    <color name="md_theme_secondary">#4A635F</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#CCE8E2</color>
+    <color name="md_theme_onSecondaryContainer">#06201C</color>
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+    <color name="md_theme_background">#F4FBF8</color>
+    <color name="md_theme_onBackground">#161D1B</color>
+    <color name="md_theme_surface">#F4FBF8</color>
+    <color name="md_theme_onSurface">#161D1B</color>
+    <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_surfaceContainerLow">#EEF5F2</color>
+    <color name="md_theme_surfaceContainer">#E9EFEC</color>
+    <color name="md_theme_surfaceContainerHigh">#E3EAE7</color>
+    <color name="md_theme_surfaceContainerHighest">#DDE4E1</color>
+    <color name="md_theme_surfaceDim">#D5DBD9</color>
+    <color name="md_theme_surfaceBright">#F4FBF8</color>
+    <color name="md_theme_surfaceVariant">#DAE5E1</color>
+    <color name="md_theme_onSurfaceVariant">#3F4946</color>
+    <color name="md_theme_outline">#6F7975</color>
+    <color name="md_theme_outlineVariant">#BEC9C5</color>
+    <color name="md_theme_inverseSurface">#2B322F</color>
+    <color name="md_theme_inverseOnSurface">#ECF2EF</color>
+    <color name="md_theme_inversePrimary">#53DBC9</color>
 </resources>

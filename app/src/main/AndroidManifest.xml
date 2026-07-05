@@ -63,7 +63,7 @@
         <activity android:name=".ui.DummyActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar"
+            android:theme="@style/AppTheme.Translucent"
             android:exported="true">
             <intent-filter>
                 <action android:name="net.typeblog.shelter.action.FINALIZE_PROVISION" />
@@ -90,7 +90,7 @@
         <activity android:name=".ui.FinalizeActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar"
+            android:theme="@style/AppTheme.Translucent"
             android:permission="android.permission.BIND_DEVICE_ADMIN"
             android:exported="true">
             <intent-filter>

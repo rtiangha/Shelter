@@ -5,17 +5,17 @@
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_interaction">
 
-        <androidx.preference.CheckBoxPreference
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_cross_profile_file_chooser"
             android:title="@string/settings_cross_profile_file_chooser"
             android:summary="@string/settings_cross_profile_file_chooser_desc" />
 
-        <androidx.preference.CheckBoxPreference
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_block_contacts_searching"
             android:title="@string/settings_block_contacts_searching"
             android:summary="@string/settings_block_contacts_searching_desc" />
 
-        <androidx.preference.CheckBoxPreference
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_payment_stub"
             android:title="@string/settings_payment_stub"
             android:summary="@string/settings_payment_stub_desc" />
@@ -25,7 +25,7 @@
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_services">
 
-        <androidx.preference.CheckBoxPreference
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_auto_freeze_service"
             android:title="@string/settings_auto_freeze_service"
             android:summary="@string/settings_auto_freeze_service_desc" />
@@ -35,7 +35,7 @@
             android:key="settings_auto_freeze_delay"
             android:title="@string/settings_auto_freeze_delay" />
 
-        <androidx.preference.CheckBoxPreference
+        <androidx.preference.SwitchPreferenceCompat
             android:dependency="settings_auto_freeze_service"
             android:key="settings_dont_freeze_foreground"
             android:title="@string/settings_dont_freeze_foreground"

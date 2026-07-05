@@ -4,14 +4,18 @@
     android:clickable="true"
     android:foreground="?android:attr/selectableItemBackground"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="wrap_content"
+    android:minHeight="72dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
     <ImageView
         android:id="@+id/list_app_icon"
         android:scaleType="fitCenter"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -19,44 +23,42 @@
     <TextView
         android:id="@+id/list_app_title"
         android:layout_width="0dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="0dp"
-        android:textColor="@color/colorTextPrimary"
-        android:ellipsize="marquee"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintStart_toEndOf="@id/list_app_icon"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/list_app_select_order" />
 
     <TextView
         android:id="@+id/list_app_package"
         android:layout_width="0dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:textColor="@color/colorTextSecondary"
-        android:ellipsize="marquee"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintStart_toEndOf="@id/list_app_icon"
         app:layout_constraintTop_toBottomOf="@id/list_app_title"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/list_app_select_order" />
 
     <TextView
         android:id="@+id/list_app_select_order"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/colorPrimary"
-        android:textStyle="bold"
         android:background="@drawable/circle_accent"
         android:gravity="center"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="12sp"
+        android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

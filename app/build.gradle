@@ -66,13 +66,13 @@ androidComponents {
 }
 
 dependencies {
-    implementation libs.androidx.legacy.support.core.ui
     implementation libs.androidx.fragment
     implementation libs.androidx.appcompat
     implementation libs.androidx.preference
     implementation libs.androidx.constraintlayout
     implementation libs.material
     implementation libs.androidx.localbroadcastmanager
+    implementation libs.androidx.swiperefreshlayout
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.runner
     androidTestImplementation libs.androidx.espresso.core

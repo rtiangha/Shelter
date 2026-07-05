@@ -3,7 +3,7 @@ package net.typeblog.shelter.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
+
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.core.content.ContextCompat;
 
 import net.typeblog.shelter.R;
@@ -135,27 +135,12 @@ public class DummyActivity extends Activity {
             Utility.enforceWorkProfilePolicies(this);
             Utility.enforceUserRestrictions(this);
             SettingsManager.getInstance().applyAll();
-
-            synchronized (DummyActivity.class) {
-                // Do not show permission dialog during finalization -- it will conflict with the provisioning UI
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !sHasRequestedPermission
-                        && !FINALIZE_PROVISION.equals(getIntent().getAction())) {
-                    // Avoid requesting permission multiple times in one session
-                    // This also prevents multiple instances of DummyActivity from being blocked on each other
-                    sHasRequestedPermission = true;
-                    // We pretty much only send notifications to keep the process inside work profile alive
-                    // as such, only request the notification permission from inside the profile
-                    // This will ideally be shown and done when the user sees the app list UI for the first time
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_PERMISSION_POST_NOTIFICATIONS);
-                        // Continue once the request has been completed (see onRequestPermissionResult)
-                        return;
-                    }
-                }
-            }
         }
 
+        // Always answer the intent first. The notification permission is requested
+        // opportunistically from actionStartService() instead of here, so that a lost
+        // or never-delivered permission result can never wedge the caller (e.g.
+        // MainActivity waiting on the TRY_START_SERVICE handshake).
         init();
     }
 
@@ -246,10 +231,9 @@ public class DummyActivity extends Activity {
                 finish();
             }
         } else if (requestCode == REQUEST_PERMISSION_POST_NOTIFICATIONS) {
-            // Regardless of the result, continue initialization
-            // This is fine because most functionalities will work anyway; it will just be a bit buggy
-            // and unreliable.
-            init();
+            // The notification permission is requested fire-and-forget (see
+            // maybeRequestNotificationPermission); the action has already been
+            // dispatched, so there is nothing to continue here regardless of the result.
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
@@ -285,7 +269,33 @@ public class DummyActivity extends Activity {
         }
     }
 
+    // Request POST_NOTIFICATIONS at most once per work-profile process, without
+    // blocking on the result. Excludes the provisioning-finalization path, whose
+    // permission dialog would conflict with the system provisioning UI.
+    private void maybeRequestNotificationPermission() {
+        if (!mIsProfileOwner || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
+        if (FINALIZE_PROVISION.equals(getIntent().getAction())) return;
+
+        synchronized (DummyActivity.class) {
+            if (sHasRequestedPermission) return;
+            sHasRequestedPermission = true;
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_PERMISSION_POST_NOTIFICATIONS);
+        }
+    }
+
     private void actionStartService() {
+        // Opportunistically request the notification permission from inside the work
+        // profile, where notifications keep the profile process alive. This is
+        // fire-and-forget: the grant is applied by the system whether or not this
+        // short-lived activity survives to receive the callback, and Shelter still
+        // functions (a bit less reliably) without it. Crucially it does NOT block the
+        // handshake below, so a missing permission dialog cannot hang the caller.
+        maybeRequestNotificationPermission();
+
         // This needs to be foreground because this activity won't be able to hold
         // the ServiceConnection to it.
         ((ShelterApplication) getApplication()).bindShelterService(new ServiceConnection() {

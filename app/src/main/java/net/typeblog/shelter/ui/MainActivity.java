@@ -19,7 +19,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
@@ -28,6 +28,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.ShelterApplication;
@@ -436,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
             };
 
             if (!item.isChecked()) {
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setMessage(R.string.show_all_warning)
                         .setPositiveButton(R.string.first_run_alert_continue,
                                 (dialog, which) -> update.run())

@@ -4,34 +4,33 @@
     android:id="@+id/wizard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/wizard_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="40dp"
-        android:paddingBottom="24dp">
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/wizard_header_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textColor="?attr/colorOnSurface" />
     </FrameLayout>
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/wizard_progress"
-        style="@android:style/Widget.Material.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:indeterminate="true"
-        android:indeterminateTint="@color/setup_wizard_progress_bar"
         android:visibility="gone" />
 
     <ScrollView
@@ -44,21 +43,29 @@
             android:id="@+id/setup_wizard_generic_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="40dp" />
+            android:lineSpacingExtra="4dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="24dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant" />
     </ScrollView>
 
     <LinearLayout
         android:id="@+id/wizard_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorNavigationBar"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/wizard_back"
-            style="?attr/borderlessButtonStyle"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/setup_wizard_back" />
@@ -68,12 +75,10 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/wizard_next"
-            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/setup_wizard_next"
-            android:textColor="@color/colorAccent" />
+            android:text="@string/setup_wizard_next" />
     </LinearLayout>
 </LinearLayout>

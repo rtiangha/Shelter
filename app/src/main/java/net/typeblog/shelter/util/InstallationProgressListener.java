@@ -8,6 +8,8 @@ import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import net.typeblog.shelter.R;
 
 public class InstallationProgressListener extends PackageInstaller.SessionCallback {
@@ -27,7 +29,7 @@ public class InstallationProgressListener extends PackageInstaller.SessionCallba
                 .inflate(R.layout.progress_dialog, (ViewGroup) activity.getWindow().getDecorView(), false);
         mProgress = layout.findViewById(R.id.progress);
 
-        mDialog = new AlertDialog.Builder(activity)
+        mDialog = new MaterialAlertDialogBuilder(activity)
                 .setCancelable(false)
                 .setTitle(R.string.app_installing)
                 .setView(layout)

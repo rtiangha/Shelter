@@ -13,14 +13,16 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.preference.CheckBoxPreference;
+import androidx.preference.SwitchPreferenceCompat;
 import androidx.preference.DropDownPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.services.IShelterService;
@@ -47,11 +49,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private SettingsManager mManager = SettingsManager.getInstance();
     private IShelterService mServiceWork = null;
 
-    private CheckBoxPreference mPrefCrossProfileFileChooser = null;
-    private CheckBoxPreference mPrefBlockContactsSearching = null;
-    private CheckBoxPreference mPrefAutoFreezeService = null;
-    private CheckBoxPreference mPrefSkipForeground = null;
-    private CheckBoxPreference mPrefPaymentStub = null;
+    private SwitchPreferenceCompat mPrefCrossProfileFileChooser = null;
+    private SwitchPreferenceCompat mPrefBlockContactsSearching = null;
+    private SwitchPreferenceCompat mPrefAutoFreezeService = null;
+    private SwitchPreferenceCompat mPrefSkipForeground = null;
+    private SwitchPreferenceCompat mPrefPaymentStub = null;
 
     private DropDownPreference mPrefAutoFreezeDelay = null;
 
@@ -91,18 +93,18 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .setOnPreferenceClickListener(this::openSummaryUrl);
 
         // === Interactions ===
-        mPrefCrossProfileFileChooser = (CheckBoxPreference) findPreference(SETTINGS_CROSS_PROFILE_FILE_CHOOSER);
+        mPrefCrossProfileFileChooser = (SwitchPreferenceCompat) findPreference(SETTINGS_CROSS_PROFILE_FILE_CHOOSER);
         mPrefCrossProfileFileChooser.setChecked(mManager.getCrossProfileFileChooserEnabled());
         mPrefCrossProfileFileChooser.setOnPreferenceChangeListener(this);
-        mPrefBlockContactsSearching = (CheckBoxPreference) findPreference(SETTINGS_BLOCK_CONTACTS_SEARCHING);
+        mPrefBlockContactsSearching = (SwitchPreferenceCompat) findPreference(SETTINGS_BLOCK_CONTACTS_SEARCHING);
         mPrefBlockContactsSearching.setChecked(mManager.getBlockContactsSearchingEnabled());
         mPrefBlockContactsSearching.setOnPreferenceChangeListener(this);
-        mPrefPaymentStub = (CheckBoxPreference) findPreference(SETTINGS_PAYMENT_STUB);
+        mPrefPaymentStub = (SwitchPreferenceCompat) findPreference(SETTINGS_PAYMENT_STUB);
         mPrefPaymentStub.setChecked(mManager.getPaymentStubEnabled());
         mPrefPaymentStub.setOnPreferenceChangeListener(this);
 
         // === Services ===
-        mPrefAutoFreezeService = (CheckBoxPreference) findPreference(SETTINGS_AUTO_FREEZE_SERVICE);
+        mPrefAutoFreezeService = (SwitchPreferenceCompat) findPreference(SETTINGS_AUTO_FREEZE_SERVICE);
         mPrefAutoFreezeService.setChecked(mManager.getAutoFreezeServiceEnabled());
         mPrefAutoFreezeService.setOnPreferenceChangeListener(this);
         mPrefAutoFreezeDelay = findPreference(SETTINGS_AUTO_FREEZE_DELAY);
@@ -110,7 +112,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         mPrefAutoFreezeDelay.setEntries(Arrays.stream(AUTO_FREEZE_DELAY_SECONDS).mapToObj((it) -> getString(R.string.format_minutes, it / 60)).toArray(String[]::new));
         mPrefAutoFreezeDelay.setEntryValues(Arrays.stream(AUTO_FREEZE_DELAY_SECONDS).mapToObj(String::valueOf).toArray(String[]::new));
         updateAutoFreezeDelay();
-        mPrefSkipForeground = (CheckBoxPreference) findPreference(SETTINGS_SKIP_FOREGROUND);
+        mPrefSkipForeground = (SwitchPreferenceCompat) findPreference(SETTINGS_SKIP_FOREGROUND);
         mPrefSkipForeground.setChecked(mManager.getSkipForegroundEnabled());
         mPrefSkipForeground.setOnPreferenceChangeListener(this);
 
@@ -238,7 +240,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private boolean ensureSpecialAccessPermission(CheckPermissionCallback checkPermission, int alertRes, String settingsAction) {
         if (!checkPermission.check()) {
-            new AlertDialog.Builder(getContext())
+            new MaterialAlertDialogBuilder(getContext())
                     .setMessage(alertRes)
                     .setPositiveButton(android.R.string.ok,
                             (dialog, which) -> startActivity(new Intent(settingsAction)))
