@@ -20,6 +20,7 @@ import net.typeblog.shelter.R;
 import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.ui.DummyActivity;
 import net.typeblog.shelter.util.SettingsManager;
+import net.typeblog.shelter.util.ThawManager;
 import net.typeblog.shelter.util.Utility;
 
 import java.util.ArrayList;
@@ -118,6 +119,7 @@ public class FreezeService extends Service {
 
                     if (shouldFreeze) {
                         dpm.setApplicationHidden(adminComponent, app, true);
+                        ThawManager.onFrozen(FreezeService.this, app);
                     }
                 }
                 sAppToFreeze.clear();

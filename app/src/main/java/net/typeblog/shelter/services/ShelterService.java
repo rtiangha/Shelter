@@ -22,6 +22,7 @@ import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.ui.DummyActivity;
 import net.typeblog.shelter.util.ApplicationInfoWrapper;
 import net.typeblog.shelter.util.FileProviderProxy;
+import net.typeblog.shelter.util.ThawManager;
 import net.typeblog.shelter.util.UriForwardProxy;
 import net.typeblog.shelter.util.Utility;
 
@@ -237,6 +238,7 @@ public class ShelterService extends Service {
                     mPolicyManager.setApplicationHidden(
                             mAdminComponent,
                             app.getPackageName(), true);
+                    ThawManager.onFrozen(ShelterService.this, app.getPackageName());
                     callback.callback(Activity.RESULT_OK);
                 } else {
                     callback.callback(RESULT_CANNOT_INSTALL_SYSTEM_APP);
@@ -252,6 +254,7 @@ public class ShelterService extends Service {
             mPolicyManager.setApplicationHidden(
                     mAdminComponent,
                     app.getPackageName(), true);
+            ThawManager.onFrozen(ShelterService.this, app.getPackageName());
         }
 
         @Override
@@ -262,6 +265,7 @@ public class ShelterService extends Service {
             mPolicyManager.setApplicationHidden(
                     mAdminComponent,
                     app.getPackageName(), false);
+            ThawManager.onThawed(ShelterService.this, app.getPackageName());
         }
 
         @Override

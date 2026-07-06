@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.NFC" />
     <!-- Shelter's core function is enumerating and managing every installed app
          (including disabled/frozen/non-launchable ones), and in the main profile it is
@@ -98,6 +99,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- The thaw panel: shows currently-thawed apps; swiping one off freezes it -->
+        <activity android:name=".ui.ThawPanelActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <!-- Keeps the thaw notification alive across user dismissal and reboots -->
+        <receiver android:name=".receivers.ThawNotificationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Implementation of the device policy controller -->
         <receiver android:name=".receivers.ShelterDeviceAdminReceiver"

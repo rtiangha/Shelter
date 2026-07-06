@@ -117,4 +117,14 @@
 
     <!-- Formats -->
     <string name="format_minutes">%d min</string>
+
+    <!-- Thaw list -->
+    <string name="thaw_channel_name">Thawed apps</string>
+    <plurals name="thaw_notification_title">
+        <item quantity="one">%d app thawed</item>
+        <item quantity="other">%d apps thawed</item>
+    </plurals>
+    <string name="thaw_notification_text">Tap to view; swipe an app off the list to freeze it.</string>
+    <string name="thaw_panel_title">Thawed apps</string>
+    <string name="thaw_panel_subtitle">Swipe an app off the list to freeze it.</string>
 </resources>

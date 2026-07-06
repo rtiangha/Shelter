@@ -11,6 +11,9 @@ public class LocalStorageManager {
     public static final String PREF_IS_SETTING_UP = "is_setting_up";
     public static final String PREF_HAS_SETUP = "has_setup";
     public static final String PREF_AUTO_FREEZE_LIST_WORK_PROFILE = "auto_freeze_list_work_profile";
+    // Apps currently thawed (unfrozen) by user action. Unlike the auto-freeze list, this
+    // lives in *work-profile* prefs because every thaw/freeze happens in work-profile code.
+    public static final String PREF_THAWED_LIST_WORK_PROFILE = "thawed_list_work_profile";
     public static final String PREF_CROSS_PROFILE_FILE_CHOOSER = "cross_profile_file_chooser";
     public static final String PREF_AUTH_KEY = "auth_key";
     public static final String PREF_AUTO_FREEZE_SERVICE = "auto_freeze_service";
@@ -79,6 +82,12 @@ public class LocalStorageManager {
 
     public boolean stringListContains(String pref, String item) {
         return Arrays.asList(getStringList(pref)).indexOf(item) >= 0;
+    }
+
+    public void appendStringListIfAbsent(String pref, String newItem) {
+        if (!stringListContains(pref, newItem)) {
+            appendStringList(pref, newItem);
+        }
     }
 
     public void appendStringList(String pref, String newItem) {

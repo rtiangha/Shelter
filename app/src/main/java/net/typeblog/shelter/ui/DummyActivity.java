@@ -39,6 +39,7 @@ import net.typeblog.shelter.util.FileProviderProxy;
 import net.typeblog.shelter.util.InstallationProgressListener;
 import net.typeblog.shelter.util.LocalStorageManager;
 import net.typeblog.shelter.util.SettingsManager;
+import net.typeblog.shelter.util.ThawManager;
 import net.typeblog.shelter.util.Utility;
 
 import java.io.File;
@@ -452,6 +453,7 @@ public class DummyActivity extends Activity {
                 mPolicyManager.setApplicationHidden(
                         new ComponentName(this, ShelterDeviceAdminReceiver.class),
                         packages[i], false);
+                ThawManager.onThawed(this, packages[i]);
                 // Register freeze service
                 if (packagesShouldFreeze[i]) {
                     registerAppToFreeze(packages[i]);
@@ -466,6 +468,7 @@ public class DummyActivity extends Activity {
         mPolicyManager.setApplicationHidden(
                 new ComponentName(this, ShelterDeviceAdminReceiver.class),
                 packageName, false);
+        ThawManager.onThawed(this, packageName);
 
         // Query the start intent
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
@@ -512,6 +515,7 @@ public class DummyActivity extends Activity {
                 mPolicyManager.setApplicationHidden(
                         new ComponentName(this, ShelterDeviceAdminReceiver.class),
                         pkg, true);
+                ThawManager.onFrozen(this, pkg);
             }
             stopService(new Intent(this, FreezeService.class)); // Stop the auto-freeze service
             Toast.makeText(this, R.string.freeze_all_success, Toast.LENGTH_SHORT).show();
