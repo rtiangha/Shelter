@@ -209,6 +209,11 @@ public class Utility {
         policies.allowAllPermittedAccessibilityServices();
         policies.allowAllPermittedCrossProfileNotificationListeners();
 
+        // Identify Shelter as the responsible admin when the system surfaces a
+        // policy-restricted setting in the work profile.
+        policies.setShortSupportMessage(context.getString(R.string.device_admin_support_message_short));
+        policies.setLongSupportMessage(context.getString(R.string.device_admin_support_message_long));
+
         // Block contacts searching optionally
         policies.setCrossProfileContactsSearchDisabled(
                 SettingsManager.getInstance().getBlockContactsSearchingEnabled());

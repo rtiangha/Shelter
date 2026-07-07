@@ -100,6 +100,17 @@ public class DevicePolicies {
         mManager.setPermittedCrossProfileNotificationListeners(mAdmin, null);
     }
 
+    // Shown by the system to identify Shelter as the responsible admin: the short message
+    // appears next to a policy-restricted setting, the long one when the user tries to act
+    // on it.
+    public void setShortSupportMessage(CharSequence message) {
+        mManager.setShortSupportMessage(mAdmin, message);
+    }
+
+    public void setLongSupportMessage(CharSequence message) {
+        mManager.setLongSupportMessage(mAdmin, message);
+    }
+
     // Not admin-scoped in the platform API, exposed here so callers still go through
     // one policy surface.
     public boolean isProvisioningAllowed(String action) {
