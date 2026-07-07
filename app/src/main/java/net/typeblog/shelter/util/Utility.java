@@ -201,6 +201,14 @@ public class Utility {
                 browsableDefaultIntentFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
+        // Some vendors (notably Samsung/One UI) default the managed profile to permitting
+        // no third-party input methods, accessibility services, or cross-profile
+        // notification listeners, which silently breaks keyboards, accessibility tools, and
+        // notification mirroring inside the work profile. Reset all three to "allow all".
+        policies.allowAllPermittedInputMethods();
+        policies.allowAllPermittedAccessibilityServices();
+        policies.allowAllPermittedCrossProfileNotificationListeners();
+
         // Block contacts searching optionally
         policies.setCrossProfileContactsSearchDisabled(
                 SettingsManager.getInstance().getBlockContactsSearchingEnabled());

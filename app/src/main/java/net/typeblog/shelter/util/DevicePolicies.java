@@ -84,6 +84,22 @@ public class DevicePolicies {
         mManager.setProfileEnabled(mAdmin);
     }
 
+    // Passing null to these three means "allow all". Some vendors (notably Samsung/One UI)
+    // default a managed profile to permitting NO third-party input methods, accessibility
+    // services, or cross-profile notification listeners, which silently breaks keyboards,
+    // accessibility tools, and notification mirroring inside the work profile.
+    public void allowAllPermittedInputMethods() {
+        mManager.setPermittedInputMethods(mAdmin, null);
+    }
+
+    public void allowAllPermittedAccessibilityServices() {
+        mManager.setPermittedAccessibilityServices(mAdmin, null);
+    }
+
+    public void allowAllPermittedCrossProfileNotificationListeners() {
+        mManager.setPermittedCrossProfileNotificationListeners(mAdmin, null);
+    }
+
     // Not admin-scoped in the platform API, exposed here so callers still go through
     // one policy surface.
     public boolean isProvisioningAllowed(String action) {
