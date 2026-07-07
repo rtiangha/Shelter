@@ -114,8 +114,7 @@ public class FreezeService extends Service {
                         shouldFreeze = false;
                     }
 
-                    if (shouldFreeze) {
-                        policies.setApplicationHidden(app, true);
+                    if (shouldFreeze && policies.setApplicationHidden(app, true)) {
                         ThawManager.onFrozen(FreezeService.this, app);
                     }
                 }

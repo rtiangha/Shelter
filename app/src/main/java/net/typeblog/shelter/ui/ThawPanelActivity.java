@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -86,8 +87,15 @@ public class ThawPanelActivity extends AppCompatActivity {
     }
 
     private void freezeAt(int position) {
-        String pkg = mApps.remove(position);
-        mPolicies.setApplicationHidden(pkg, true);
+        String pkg = mApps.get(position);
+        if (!mPolicies.setApplicationHidden(pkg, true)) {
+            // Freeze failed (e.g. the app is an active device admin). Keep the row in
+            // place -- restoring the swiped-away view -- and let the user know.
+            Toast.makeText(this, R.string.freeze_failed, Toast.LENGTH_SHORT).show();
+            mAdapter.notifyItemChanged(position);
+            return;
+        }
+        mApps.remove(position);
         ThawManager.onFrozen(this, pkg);
         mAdapter.notifyItemRemoved(position);
         if (mApps.isEmpty()) {

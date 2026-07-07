@@ -40,8 +40,16 @@ public class DevicePolicies {
     }
 
     // Single chokepoint for hiding/unhiding (a.k.a. freezing/unfreezing) apps.
+    // Returns true iff the app is in the requested state afterwards. The platform's
+    // setApplicationHidden() returns false BOTH on genuine failure (e.g. the target is
+    // an active device admin) AND when the app is already in the requested state, so on
+    // a false result we re-check the actual state to tell those apart. Callers rely on
+    // this to avoid recording a freeze/unfreeze that did not actually happen.
+    // (isApplicationHidden() reports true for a not-installed package too, which
+    // correctly makes an unhide of a missing package report failure.)
     public boolean setApplicationHidden(String pkg, boolean hidden) {
-        return mManager.setApplicationHidden(mAdmin, pkg, hidden);
+        if (mManager.setApplicationHidden(mAdmin, pkg, hidden)) return true;
+        return mManager.isApplicationHidden(mAdmin, pkg) == hidden;
     }
 
     public boolean isApplicationHidden(String pkg) {

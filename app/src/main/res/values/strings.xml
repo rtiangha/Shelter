@@ -101,6 +101,7 @@
     <string name="uninstall_success">Application \"%s\" uninstalled successfully</string>
     <string name="freeze_success">Application \"%s\" frozen successfully</string>
     <string name="unfreeze_success">Application \"%s\" unfrozen successfully</string>
+    <string name="freeze_failed">Could not freeze this app. It may be an active device admin.</string>
     <string name="clone_fail_system_app">Cannot clone system apps to a profile that Shelter has no control of.</string>
     <string name="uninstall_fail_system_app">Cannot uninstall system apps in a profile that Shelter has no control of.</string>
     <string name="unsupported_launcher">Cannot add shortcuts to your launcher. Please contact the developer for more information.</string>

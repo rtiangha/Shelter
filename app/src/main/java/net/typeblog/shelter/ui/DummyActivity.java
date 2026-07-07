@@ -449,8 +449,8 @@ public class DummyActivity extends Activity {
 
             for (int i = 0; i < packages.length; i++) {
                 // Unfreeze everything
-                mPolicies.setApplicationHidden(packages[i], false);
-                ThawManager.onThawed(this, packages[i]);
+                if (mPolicies.setApplicationHidden(packages[i], false))
+                    ThawManager.onThawed(this, packages[i]);
                 // Register freeze service
                 if (packagesShouldFreeze[i]) {
                     registerAppToFreeze(packages[i]);
@@ -462,8 +462,8 @@ public class DummyActivity extends Activity {
         String packageName = getIntent().getStringExtra("packageName");
 
         // Unfreeze the app first
-        mPolicies.setApplicationHidden(packageName, false);
-        ThawManager.onThawed(this, packageName);
+        if (mPolicies.setApplicationHidden(packageName, false))
+            ThawManager.onThawed(this, packageName);
 
         // Query the start intent
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
@@ -507,8 +507,8 @@ public class DummyActivity extends Activity {
         if (mIsProfileOwner) {
             String[] list = getIntent().getStringArrayExtra("list");
             for (String pkg : list) {
-                mPolicies.setApplicationHidden(pkg, true);
-                ThawManager.onFrozen(this, pkg);
+                if (mPolicies.setApplicationHidden(pkg, true))
+                    ThawManager.onFrozen(this, pkg);
             }
             stopService(new Intent(this, FreezeService.class)); // Stop the auto-freeze service
             Toast.makeText(this, R.string.freeze_all_success, Toast.LENGTH_SHORT).show();

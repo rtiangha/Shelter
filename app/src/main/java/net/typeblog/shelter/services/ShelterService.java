@@ -229,8 +229,8 @@ public class ShelterService extends Service {
                 if (mIsProfileOwner) {
                     // This is essentially the same as disabling the system app
                     // There is no way to reverse the "enableSystemApp" operation here
-                    mPolicies.setApplicationHidden(app.getPackageName(), true);
-                    ThawManager.onFrozen(ShelterService.this, app.getPackageName());
+                    if (mPolicies.setApplicationHidden(app.getPackageName(), true))
+                        ThawManager.onFrozen(ShelterService.this, app.getPackageName());
                     callback.callback(Activity.RESULT_OK);
                 } else {
                     callback.callback(RESULT_CANNOT_INSTALL_SYSTEM_APP);
@@ -243,8 +243,8 @@ public class ShelterService extends Service {
             if (!mIsProfileOwner)
                 throw new IllegalArgumentException("Cannot freeze app without being profile owner");
 
-            mPolicies.setApplicationHidden(app.getPackageName(), true);
-            ThawManager.onFrozen(ShelterService.this, app.getPackageName());
+            if (mPolicies.setApplicationHidden(app.getPackageName(), true))
+                ThawManager.onFrozen(ShelterService.this, app.getPackageName());
         }
 
         @Override
@@ -252,8 +252,8 @@ public class ShelterService extends Service {
             if (!mIsProfileOwner)
                 throw new IllegalArgumentException("Cannot unfreeze app without being profile owner");
 
-            mPolicies.setApplicationHidden(app.getPackageName(), false);
-            ThawManager.onThawed(ShelterService.this, app.getPackageName());
+            if (mPolicies.setApplicationHidden(app.getPackageName(), false))
+                ThawManager.onThawed(ShelterService.this, app.getPackageName());
         }
 
         @Override
