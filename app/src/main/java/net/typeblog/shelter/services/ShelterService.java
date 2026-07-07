@@ -2,7 +2,6 @@ package net.typeblog.shelter.services;
 
 import android.app.Activity;
 import android.app.Service;
-import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -18,9 +17,9 @@ import androidx.annotation.Nullable;
 
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.ShelterApplication;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.ui.DummyActivity;
 import net.typeblog.shelter.util.ApplicationInfoWrapper;
+import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.FileProviderProxy;
 import net.typeblog.shelter.util.ThawManager;
 import net.typeblog.shelter.util.UriForwardProxy;
@@ -38,10 +37,9 @@ public class ShelterService extends Service {
     public static final int RESULT_CANNOT_INSTALL_CA_CERT = 100002;
 
     private static final int NOTIFICATION_ID = 0x49a11;
-    private DevicePolicyManager mPolicyManager = null;
+    private DevicePolicies mPolicies = null;
     private boolean mIsProfileOwner = false;
     private PackageManager mPackageManager = null;
-    private ComponentName mAdminComponent = null;
     // When we need to start an activity, we need something else to do it for us
     // as per background limitation of Android 10
     // We mostly need this for app cloning / installation
@@ -151,14 +149,10 @@ public class ShelterService extends Service {
             } else {
                 if (mIsProfileOwner) {
                     // We can only enable system apps in our own profile
-                    mPolicyManager.enableSystemApp(
-                            mAdminComponent,
-                            app.getPackageName());
+                    mPolicies.enableSystemApp(app.getPackageName());
 
                     // Also set the hidden state to false.
-                    mPolicyManager.setApplicationHidden(
-                            mAdminComponent,
-                            app.getPackageName(), false);
+                    mPolicies.setApplicationHidden(app.getPackageName(), false);
 
                     callback.callback(Activity.RESULT_OK);
                 } else {
@@ -235,9 +229,7 @@ public class ShelterService extends Service {
                 if (mIsProfileOwner) {
                     // This is essentially the same as disabling the system app
                     // There is no way to reverse the "enableSystemApp" operation here
-                    mPolicyManager.setApplicationHidden(
-                            mAdminComponent,
-                            app.getPackageName(), true);
+                    mPolicies.setApplicationHidden(app.getPackageName(), true);
                     ThawManager.onFrozen(ShelterService.this, app.getPackageName());
                     callback.callback(Activity.RESULT_OK);
                 } else {
@@ -251,9 +243,7 @@ public class ShelterService extends Service {
             if (!mIsProfileOwner)
                 throw new IllegalArgumentException("Cannot freeze app without being profile owner");
 
-            mPolicyManager.setApplicationHidden(
-                    mAdminComponent,
-                    app.getPackageName(), true);
+            mPolicies.setApplicationHidden(app.getPackageName(), true);
             ThawManager.onFrozen(ShelterService.this, app.getPackageName());
         }
 
@@ -262,9 +252,7 @@ public class ShelterService extends Service {
             if (!mIsProfileOwner)
                 throw new IllegalArgumentException("Cannot unfreeze app without being profile owner");
 
-            mPolicyManager.setApplicationHidden(
-                    mAdminComponent,
-                    app.getPackageName(), false);
+            mPolicies.setApplicationHidden(app.getPackageName(), false);
             ThawManager.onThawed(ShelterService.this, app.getPackageName());
         }
 
@@ -287,7 +275,7 @@ public class ShelterService extends Service {
         public List<String> getCrossProfileWidgetProviders() {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile widget providers without being profile owner");
-            return mPolicyManager.getCrossProfileWidgetProviders(mAdminComponent);
+            return mPolicies.getCrossProfileWidgetProviders();
         }
 
         @Override
@@ -295,9 +283,9 @@ public class ShelterService extends Service {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile widget providers without being profile owner");
             if (enabled) {
-                return mPolicyManager.addCrossProfileWidgetProvider(mAdminComponent, pkgName);
+                return mPolicies.addCrossProfileWidgetProvider(pkgName);
             } else {
-                return mPolicyManager.removeCrossProfileWidgetProvider(mAdminComponent, pkgName);
+                return mPolicies.removeCrossProfileWidgetProvider(pkgName);
             }
         }
 
@@ -310,23 +298,22 @@ public class ShelterService extends Service {
         public List<String> getCrossProfilePackages() throws RemoteException {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile packages without being profile owner");
-            return new ArrayList<>(mPolicyManager.getCrossProfilePackages(mAdminComponent));
+            return new ArrayList<>(mPolicies.getCrossProfilePackages());
         }
 
         @Override
         public void setCrossProfilePackages(List<String> packages) throws RemoteException {
             if (!mIsProfileOwner)
                 throw new IllegalStateException("Cannot access cross-profile packages without being profile owner");
-            mPolicyManager.setCrossProfilePackages(mAdminComponent, new HashSet<>(packages));
+            mPolicies.setCrossProfilePackages(new HashSet<>(packages));
         }
     };
 
     @Override
     public void onCreate() {
-        mPolicyManager = getSystemService(DevicePolicyManager.class);
+        mPolicies = new DevicePolicies(this);
         mPackageManager = getPackageManager();
-        mIsProfileOwner = mPolicyManager.isProfileOwnerApp(getPackageName());
-        mAdminComponent = new ComponentName(getApplicationContext(), ShelterDeviceAdminReceiver.class);
+        mIsProfileOwner = mPolicies.isProfileOwner();
     }
 
     @Nullable
@@ -349,7 +336,7 @@ public class ShelterService extends Service {
     }
 
     private boolean isHidden(String packageName) {
-        return mIsProfileOwner && mPolicyManager.isApplicationHidden(mAdminComponent, packageName);
+        return mIsProfileOwner && mPolicies.isApplicationHidden(packageName);
     }
 
     private void setForeground() {

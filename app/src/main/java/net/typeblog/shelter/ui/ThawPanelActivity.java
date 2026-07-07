@@ -1,7 +1,5 @@
 package net.typeblog.shelter.ui;
 
-import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -20,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.typeblog.shelter.R;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
+import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.ThawManager;
 
 import java.util.ArrayList;
@@ -32,8 +30,7 @@ import java.util.List;
 //
 // Runs in the work profile, so it can freeze directly and needs no service binding.
 public class ThawPanelActivity extends AppCompatActivity {
-    private DevicePolicyManager mPolicyManager;
-    private ComponentName mAdminComponent;
+    private DevicePolicies mPolicies;
     private final List<String> mApps = new ArrayList<>();
     private Adapter mAdapter;
 
@@ -42,11 +39,10 @@ public class ThawPanelActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
-        mPolicyManager = getSystemService(DevicePolicyManager.class);
-        mAdminComponent = new ComponentName(this, ShelterDeviceAdminReceiver.class);
+        mPolicies = new DevicePolicies(this);
 
         // Only meaningful in the work profile; bail out defensively otherwise.
-        if (!mPolicyManager.isProfileOwnerApp(getPackageName())) {
+        if (!mPolicies.isProfileOwner()) {
             finish();
             return;
         }
@@ -91,7 +87,7 @@ public class ThawPanelActivity extends AppCompatActivity {
 
     private void freezeAt(int position) {
         String pkg = mApps.remove(position);
-        mPolicyManager.setApplicationHidden(mAdminComponent, pkg, true);
+        mPolicies.setApplicationHidden(pkg, true);
         ThawManager.onFrozen(this, pkg);
         mAdapter.notifyItemRemoved(position);
         if (mApps.isEmpty()) {

@@ -4,11 +4,9 @@ import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.admin.DevicePolicyManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,8 +15,8 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import net.typeblog.shelter.R;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.ui.DummyActivity;
+import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.SettingsManager;
 import net.typeblog.shelter.util.ThawManager;
 import net.typeblog.shelter.util.Utility;
@@ -106,8 +104,7 @@ public class FreezeService extends Service {
             unregisterReceiver(mUnlockReceiver);
 
             if (sAppToFreeze.size() > 0) {
-                DevicePolicyManager dpm = getSystemService(DevicePolicyManager.class);
-                ComponentName adminComponent = new ComponentName(FreezeService.this, ShelterDeviceAdminReceiver.class);
+                DevicePolicies policies = new DevicePolicies(FreezeService.this);
                 for (String app : sAppToFreeze) {
                     boolean shouldFreeze = true;
                     UsageStats stats =  mUsageStats.get(app);
@@ -118,7 +115,7 @@ public class FreezeService extends Service {
                     }
 
                     if (shouldFreeze) {
-                        dpm.setApplicationHidden(adminComponent, app, true);
+                        policies.setApplicationHidden(app, true);
                         ThawManager.onFrozen(FreezeService.this, app);
                     }
                 }

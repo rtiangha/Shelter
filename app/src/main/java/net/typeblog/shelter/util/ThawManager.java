@@ -4,15 +4,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import net.typeblog.shelter.R;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.receivers.ThawNotificationReceiver;
 import net.typeblog.shelter.ui.ThawPanelActivity;
 
@@ -48,13 +45,12 @@ public class ThawManager {
     // uninstalled or frozen out-of-band. Prunes the stored list in place when it finds
     // stale entries, so callers (and the notification) always see reality.
     public static synchronized List<String> getThawedApps(Context context) {
-        DevicePolicyManager dpm = context.getSystemService(DevicePolicyManager.class);
-        if (!dpm.isProfileOwnerApp(context.getPackageName())) {
+        DevicePolicies policies = new DevicePolicies(context);
+        if (!policies.isProfileOwner()) {
             // Not the work profile -- there is nothing we can freeze, so there is no list.
             return new ArrayList<>();
         }
 
-        ComponentName admin = new ComponentName(context, ShelterDeviceAdminReceiver.class);
         PackageManager pm = context.getPackageManager();
         List<String> result = new ArrayList<>();
         boolean changed = false;
@@ -71,7 +67,7 @@ public class ThawManager {
                 // a truly removed one throws and is pruned.
                 pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
                 // Frozen behind our back (e.g. some path we do not hook) -> drop it.
-                stale = dpm.isApplicationHidden(admin, pkg);
+                stale = policies.isApplicationHidden(pkg);
             } catch (PackageManager.NameNotFoundException e) {
                 stale = true;
             }

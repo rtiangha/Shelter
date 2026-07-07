@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 
-import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -29,12 +28,12 @@ import androidx.core.content.ContextCompat;
 
 import net.typeblog.shelter.R;
 import net.typeblog.shelter.ShelterApplication;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.services.FreezeService;
 import net.typeblog.shelter.services.IAppInstallCallback;
 import net.typeblog.shelter.services.IFileShuttleService;
 import net.typeblog.shelter.services.IFileShuttleServiceCallback;
 import net.typeblog.shelter.util.AuthenticationUtility;
+import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.FileProviderProxy;
 import net.typeblog.shelter.util.InstallationProgressListener;
 import net.typeblog.shelter.util.LocalStorageManager;
@@ -120,14 +119,14 @@ public class DummyActivity extends Activity {
     }
 
     private boolean mIsProfileOwner = false;
-    private DevicePolicyManager mPolicyManager = null;
+    private DevicePolicies mPolicies = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPolicyManager = getSystemService(DevicePolicyManager.class);
-        mIsProfileOwner = mPolicyManager.isProfileOwnerApp(getPackageName());
+        mPolicies = new DevicePolicies(this);
+        mIsProfileOwner = mPolicies.isProfileOwner();
         if (mIsProfileOwner) {
             // If we are the profile owner, we enforce all our policies
             // so that we can make sure those are updated with our app
@@ -450,9 +449,7 @@ public class DummyActivity extends Activity {
 
             for (int i = 0; i < packages.length; i++) {
                 // Unfreeze everything
-                mPolicyManager.setApplicationHidden(
-                        new ComponentName(this, ShelterDeviceAdminReceiver.class),
-                        packages[i], false);
+                mPolicies.setApplicationHidden(packages[i], false);
                 ThawManager.onThawed(this, packages[i]);
                 // Register freeze service
                 if (packagesShouldFreeze[i]) {
@@ -465,9 +462,7 @@ public class DummyActivity extends Activity {
         String packageName = getIntent().getStringExtra("packageName");
 
         // Unfreeze the app first
-        mPolicyManager.setApplicationHidden(
-                new ComponentName(this, ShelterDeviceAdminReceiver.class),
-                packageName, false);
+        mPolicies.setApplicationHidden(packageName, false);
         ThawManager.onThawed(this, packageName);
 
         // Query the start intent
@@ -512,9 +507,7 @@ public class DummyActivity extends Activity {
         if (mIsProfileOwner) {
             String[] list = getIntent().getStringArrayExtra("list");
             for (String pkg : list) {
-                mPolicyManager.setApplicationHidden(
-                        new ComponentName(this, ShelterDeviceAdminReceiver.class),
-                        pkg, true);
+                mPolicies.setApplicationHidden(pkg, true);
                 ThawManager.onFrozen(this, pkg);
             }
             stopService(new Intent(this, FreezeService.class)); // Stop the auto-freeze service

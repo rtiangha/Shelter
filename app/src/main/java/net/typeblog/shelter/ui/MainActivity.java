@@ -1,6 +1,5 @@
 package net.typeblog.shelter.ui;
 
-import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(findViewById(R.id.main_toolbar));
         mStorage = LocalStorageManager.getInstance();
 
-        if (getSystemService(DevicePolicyManager.class).isProfileOwnerApp(getPackageName())) {
+        if (Utility.isProfileOwner(this)) {
             // We are now in our own profile
             // We should never start the main activity here.
             android.util.Log.d("MainActivity", "started in user profile. stopping.");

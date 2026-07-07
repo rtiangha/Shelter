@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import net.typeblog.shelter.R;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.services.IShelterService;
 import net.typeblog.shelter.ui.DummyActivity;
 import net.typeblog.shelter.ui.MainActivity;
@@ -51,10 +50,8 @@ import java.util.Optional;
 
 public class Utility {
     // Determine if the current app is the owner of the current profile
-    // TODO: Replace all occurrences of duplicated code to call this function instead
     public static boolean isProfileOwner(Context context) {
-        return context.getSystemService(DevicePolicyManager.class)
-                .isProfileOwnerApp(context.getPackageName());
+        return new DevicePolicies(context).isProfileOwner();
     }
 
     public static String stringJoin(String delimiter, String[] list) {
@@ -117,8 +114,7 @@ public class Utility {
 
     // Enforce policies and configurations in the work profile
     public static void enforceWorkProfilePolicies(Context context) {
-        DevicePolicyManager manager = context.getSystemService(DevicePolicyManager.class);
-        ComponentName adminComponent = new ComponentName(context.getApplicationContext(), ShelterDeviceAdminReceiver.class);
+        DevicePolicies policies = new DevicePolicies(context);
 
         // Hide this app in the work profile
         context.getPackageManager().setComponentEnabledSetting(
@@ -126,62 +122,51 @@ public class Utility {
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
 
         // Clear everything first to ensure our policies are set properly
-        manager.clearCrossProfileIntentFilters(adminComponent);
+        policies.clearCrossProfileIntentFilters();
 
         // Allow cross-profile intents for START_SERVICE
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.START_SERVICE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.TRY_START_SERVICE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.UNFREEZE_AND_LAUNCH),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.FREEZE_ALL_IN_LIST),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.PUBLIC_FREEZE_ALL),
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED); // Used by FreezeService in profile
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.FINALIZE_PROVISION),
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.START_FILE_SHUTTLE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.START_FILE_SHUTTLE_2),
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.SYNCHRONIZE_PREFERENCE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
         // Needed by ShelterService and has to be proxied by the MainActivity in main profile
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.INSTALL_PACKAGE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.UNINSTALL_PACKAGE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);
 
@@ -195,8 +180,7 @@ public class Utility {
             // WTF?
         }
         actionSendFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 actionSendFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
@@ -205,8 +189,7 @@ public class Utility {
         browsableIntentFilter.addCategory(Intent.CATEGORY_BROWSABLE);
         browsableIntentFilter.addDataScheme("http");
         browsableIntentFilter.addDataScheme("https");
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 browsableIntentFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
         IntentFilter browsableDefaultIntentFilter = new IntentFilter(Intent.ACTION_VIEW);
@@ -214,28 +197,24 @@ public class Utility {
         browsableDefaultIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         browsableDefaultIntentFilter.addDataScheme("http");
         browsableDefaultIntentFilter.addDataScheme("https");
-        manager.addCrossProfileIntentFilter(
-                adminComponent,
+        policies.addCrossProfileIntentFilter(
                 browsableDefaultIntentFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
         // Block contacts searching optionally
-        manager.setCrossProfileContactsSearchDisabled(adminComponent,
+        policies.setCrossProfileContactsSearchDisabled(
                 SettingsManager.getInstance().getBlockContactsSearchingEnabled());
 
-        manager.setProfileEnabled(adminComponent);
+        policies.setProfileEnabled();
     }
 
     public static void enforceUserRestrictions(Context context) {
-        DevicePolicyManager manager = context.getSystemService(DevicePolicyManager.class);
-        ComponentName adminComponent = new ComponentName(context.getApplicationContext(), ShelterDeviceAdminReceiver.class);
-        manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_INSTALL_APPS);
-        manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES);
-        manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_UNINSTALL_APPS);
-        // Allow debug, after reboot should open Shelter at least 1 time to call this function
-        manager.clearUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES);
+        DevicePolicies policies = new DevicePolicies(context);
+        policies.clearUserRestriction(UserManager.DISALLOW_INSTALL_APPS);
+        policies.clearUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES);
+        policies.clearUserRestriction(UserManager.DISALLOW_UNINSTALL_APPS);
 
-        manager.addUserRestriction(adminComponent, UserManager.ALLOW_PARENT_PROFILE_APP_LINKING);
+        policies.addUserRestriction(UserManager.ALLOW_PARENT_PROFILE_APP_LINKING);
     }
 
     // Detect if the device is MIUI

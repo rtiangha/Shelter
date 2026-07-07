@@ -25,8 +25,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.typeblog.shelter.R;
-import net.typeblog.shelter.receivers.ShelterDeviceAdminReceiver;
 import net.typeblog.shelter.util.AuthenticationUtility;
+import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.LocalStorageManager;
 import net.typeblog.shelter.util.Utility;
 
@@ -38,7 +38,7 @@ public class SetupWizardActivity extends AppCompatActivity {
     public static final String ACTION_RESUME_SETUP = "net.typeblog.shelter.RESUME_SETUP";
     public static final String ACTION_PROFILE_PROVISIONED = "net.typeblog.shelter.PROFILE_PROVISIONED";
 
-    private DevicePolicyManager mPolicyManager = null;
+    private DevicePolicies mPolicies = null;
     private LocalStorageManager mStorage = null;
 
     private final ActivityResultLauncher<Void> mProvisionProfile =
@@ -59,7 +59,7 @@ public class SetupWizardActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_setup_wizard);
-        mPolicyManager = getSystemService(DevicePolicyManager.class);
+        mPolicies = new DevicePolicies(this);
         mStorage = LocalStorageManager.getInstance();
         // Don't use switchToFragment for the first time
         // because we don't want animation for the first fragment
@@ -98,7 +98,7 @@ public class SetupWizardActivity extends AppCompatActivity {
     }
 
     private void setupProfile() {
-        if (!mPolicyManager.isProvisioningAllowed(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE)) {
+        if (!mPolicies.isProvisioningAllowed(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE)) {
             switchToFragment(new FailedFragment(), false);
             return;
         }
@@ -171,7 +171,7 @@ public class SetupWizardActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, Void input) {
-            ComponentName admin = new ComponentName(context.getApplicationContext(), ShelterDeviceAdminReceiver.class);
+            ComponentName admin = new DevicePolicies(context).getAdminComponent();
             Intent intent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
             intent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_SKIP_ENCRYPTION, true);
             intent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, admin);
