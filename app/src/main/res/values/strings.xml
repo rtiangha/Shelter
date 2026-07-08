@@ -130,4 +130,5 @@
     <string name="thaw_notification_text">Tap to view; swipe an app off the list to freeze it.</string>
     <string name="thaw_panel_title">Thawed apps</string>
     <string name="thaw_panel_subtitle">Swipe an app off the list to freeze it.</string>
+    <string name="thaw_panel_freeze_all">Freeze all</string>
 </resources>

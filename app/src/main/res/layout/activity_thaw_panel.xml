@@ -40,7 +40,25 @@
         android:id="@+id/thaw_panel_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/thaw_panel_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/thaw_panel_freeze_all" />
+
+    <!-- Floating pill, styled after the launcher's recents "Clear all" affordance. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/thaw_panel_freeze_all"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:paddingStart="72dp"
+        android:paddingEnd="72dp"
+        android:text="@string/thaw_panel_freeze_all"
+        app:cornerRadius="24dp"
+        app:layout_constraintTop_toBottomOf="@id/thaw_panel_recycler_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

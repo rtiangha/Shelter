@@ -14,6 +14,9 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,6 +63,20 @@ public class ThawPanelActivity extends AppCompatActivity {
 
         new ItemTouchHelper(new SwipeToFreezeCallback()).attachToRecyclerView(list);
 
+        View freezeAll = findViewById(R.id.thaw_panel_freeze_all);
+        freezeAll.setOnClickListener(v -> freezeAll());
+
+        // We are edge-to-edge, so keep the floating pill clear of the gesture nav bar by
+        // adding the bottom system-bar inset on top of its base margin.
+        int baseMargin = ((ViewGroup.MarginLayoutParams) freezeAll.getLayoutParams()).bottomMargin;
+        ViewCompat.setOnApplyWindowInsetsListener(freezeAll, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            lp.bottomMargin = baseMargin + bars.bottom;
+            v.setLayoutParams(lp);
+            return insets;
+        });
+
         reload();
     }
 
@@ -100,6 +117,30 @@ public class ThawPanelActivity extends AppCompatActivity {
         mAdapter.notifyItemRemoved(position);
         if (mApps.isEmpty()) {
             finish();
+        }
+    }
+
+    // Freeze every app in one pass. Apps that refuse to freeze (e.g. active device admins)
+    // stay in the list, exactly as a swipe on each would leave them; if any survive we
+    // report it and keep the panel open, otherwise the emptied list closes it.
+    private void freezeAll() {
+        List<String> remaining = new ArrayList<>();
+        for (String pkg : mApps) {
+            if (mPolicies.setApplicationHidden(pkg, true)) {
+                ThawManager.onFrozen(this, pkg);
+            } else {
+                remaining.add(pkg);
+            }
+        }
+
+        mApps.clear();
+        mApps.addAll(remaining);
+        mAdapter.notifyDataSetChanged();
+
+        if (mApps.isEmpty()) {
+            finish();
+        } else {
+            Toast.makeText(this, R.string.freeze_failed, Toast.LENGTH_SHORT).show();
         }
     }
 
