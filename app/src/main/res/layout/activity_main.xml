@@ -24,6 +24,9 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- The pager fills all the way to the bottom, behind the navigation bar.
+         Each list reserves bottom padding equal to the navigation height (see
+         AppListFragment) so its last row can scroll clear of the tab strip. -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/main_pager"
         android:layout_width="match_parent"
@@ -31,15 +34,14 @@
         app:layout_constraintTop_toBottomOf="@id/main_appbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/main_bottom_navigation" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@id/main_bottom_navigation"
+        android:id="@+id/main_bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:menu="@menu/bottom_navigation_menu"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_pager"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

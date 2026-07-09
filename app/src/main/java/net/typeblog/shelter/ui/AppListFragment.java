@@ -193,6 +193,23 @@ public class AppListFragment extends BaseFragment {
                 mSwipeRefresh, com.google.android.material.R.attr.colorSurfaceContainerHigh));
         registerForContextMenu(mList);
 
+        // The pager draws behind the bottom-navigation tab strip, so reserve room
+        // at the bottom of the list equal to the strip's height. Without this the
+        // last row cannot scroll clear of the strip and stays hidden behind it.
+        // clipToPadding is false (see fragment_list.xml) so the list still fills
+        // the whole area while scrolling. The height is applied via a layout
+        // listener because the strip grows once it receives the navigation-bar
+        // insets, and re-applied whenever that height changes.
+        View bottomNav = getActivity().findViewById(R.id.main_bottom_navigation);
+        if (bottomNav != null) {
+            Runnable applyBottomInset = () -> mList.setPaddingRelative(
+                    mList.getPaddingStart(), mList.getPaddingTop(),
+                    mList.getPaddingEnd(), bottomNav.getHeight());
+            bottomNav.addOnLayoutChangeListener(
+                    (v, l, t, r, b, ol, ot, orr, ob) -> applyBottomInset.run());
+            if (bottomNav.getHeight() > 0) applyBottomInset.run();
+        }
+
         return view;
     }
 
