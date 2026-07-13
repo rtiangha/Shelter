@@ -88,7 +88,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.14.0'
     debugImplementation project(path: ':setup-wizard-lib', configuration: 'gingerbreadCompatDebugRuntimeElements')
     releaseImplementation project(path: ':setup-wizard-lib', configuration: 'gingerbreadCompatReleaseRuntimeElements')
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:6.1.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:6.1.2'
     androidTestImplementation 'androidx.test:runner:1.7.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }
