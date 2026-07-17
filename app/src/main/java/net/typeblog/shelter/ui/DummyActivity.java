@@ -58,6 +58,12 @@ import java.util.UUID;
 // the crossProfileIntentFilter
 public class DummyActivity extends Activity {
     public static final String FINALIZE_PROVISION = "net.typeblog.shelter.action.FINALIZE_PROVISION";
+    /**
+     * Ask the profile-owner Shelter instance to destroy an incomplete work profile
+     * via {@link android.app.admin.DevicePolicyManager#wipeData(int)}. Only reachable when
+     * cross-profile intent resolution still works (heal preferred when possible).
+     */
+    public static final String WIPE_ORPHAN_PROFILE = "net.typeblog.shelter.action.WIPE_ORPHAN_PROFILE";
     public static final String START_SERVICE = "net.typeblog.shelter.action.START_SERVICE";
     public static final String TRY_START_SERVICE = "net.typeblog.shelter.action.TRY_START_SERVICE";
     public static final String INSTALL_PACKAGE = "net.typeblog.shelter.action.INSTALL_PACKAGE";
@@ -78,6 +84,7 @@ public class DummyActivity extends Activity {
     // Only these actions are allowed without a valid signature
     private static final List<String> ACTIONS_ALLOWED_WITHOUT_SIGNATURE = Arrays.asList(
             FINALIZE_PROVISION,
+            WIPE_ORPHAN_PROFILE,
             PUBLIC_FREEZE_ALL,
             PUBLIC_UNFREEZE_AND_LAUNCH);
 
@@ -175,6 +182,8 @@ public class DummyActivity extends Activity {
             actionUninstallPackage();
         } else if (FINALIZE_PROVISION.equals(intent.getAction())) {
             actionFinalizeProvision();
+        } else if (WIPE_ORPHAN_PROFILE.equals(intent.getAction())) {
+            actionWipeOrphanProfile();
         } else if (UNFREEZE_AND_LAUNCH.equals(intent.getAction()) || PUBLIC_UNFREEZE_AND_LAUNCH.equals(intent.getAction())) {
             actionUnfreezeAndLaunch();
         } else if (PUBLIC_FREEZE_ALL.equals(intent.getAction())) {
@@ -242,12 +251,24 @@ public class DummyActivity extends Activity {
         }
     }
 
+    private void actionWipeOrphanProfile() {
+        if (!mIsProfileOwner) {
+            // Only the profile-owner instance can wipe the managed profile.
+            finish();
+            return;
+        }
+        // Destroy this work profile. The main-profile Shelter can then provision again.
+        // wipeData() ends this user; finish() may never run.
+        mPolicies.getManager().wipeData(0);
+    }
+
     // Request POST_NOTIFICATIONS at most once per work-profile process, without
     // blocking on the result. Excludes the provisioning-finalization path, whose
     // permission dialog would conflict with the system provisioning UI.
     private void maybeRequestNotificationPermission() {
         if (!mIsProfileOwner || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
         if (FINALIZE_PROVISION.equals(getIntent().getAction())) return;
+        if (WIPE_ORPHAN_PROFILE.equals(getIntent().getAction())) return;
 
         synchronized (DummyActivity.class) {
             if (sHasRequestedPermission) return;

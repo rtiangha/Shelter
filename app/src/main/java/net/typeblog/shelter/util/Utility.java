@@ -149,6 +149,12 @@ public class Utility {
                 new IntentFilter(DummyActivity.FINALIZE_PROVISION),
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
+        // Parent can ask a Shelter-owned work profile to wipe itself after a failed /
+        // incomplete ManagedProvisioning run (see WorkProfileRecovery).
+        policies.addCrossProfileIntentFilter(
+                new IntentFilter(DummyActivity.WIPE_ORPHAN_PROFILE),
+                DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
+
         policies.addCrossProfileIntentFilter(
                 new IntentFilter(DummyActivity.START_FILE_SHUTTLE),
                 DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT);

@@ -29,6 +29,7 @@ import net.typeblog.shelter.util.AuthenticationUtility;
 import net.typeblog.shelter.util.DevicePolicies;
 import net.typeblog.shelter.util.LocalStorageManager;
 import net.typeblog.shelter.util.Utility;
+import net.typeblog.shelter.util.WorkProfileRecovery;
 
 public class SetupWizardActivity extends AppCompatActivity {
     // RESUME_SETUP should be used when MainActivity detects the provisioning has been
@@ -40,6 +41,8 @@ public class SetupWizardActivity extends AppCompatActivity {
 
     private DevicePolicies mPolicies = null;
     private LocalStorageManager mStorage = null;
+    /** Profile count snapshot taken immediately before launching system provisioning. */
+    private int mProfileCountBeforeProvision = 1;
 
     private final ActivityResultLauncher<Void> mProvisionProfile =
             registerForActivityResult(new ProfileProvisionContract(), this::setupProfileCb);
@@ -98,8 +101,14 @@ public class SetupWizardActivity extends AppCompatActivity {
     }
 
     private void setupProfile() {
+        // Leftover from a previous failed/aborted ManagedProvisioning run (any OEM).
+        if (WorkProfileRecovery.isIncompleteWorkProfile(this)) {
+            recoverOrShowFailure(WorkProfileRecovery.FailureKind.INCOMPLETE_WORK_PROFILE);
+            return;
+        }
+
         if (!mPolicies.isProvisioningAllowed(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE)) {
-            switchToFragment(new FailedFragment(), false);
+            switchToFragment(FailedFragment.forKind(WorkProfileRecovery.FailureKind.SETUP_FAILED), false);
             return;
         }
 
@@ -108,11 +117,11 @@ public class SetupWizardActivity extends AppCompatActivity {
         // could do authentication due to the presence of keys
         AuthenticationUtility.reset();
 
+        mProfileCountBeforeProvision = WorkProfileRecovery.profileCount(this);
         try {
             mProvisionProfile.launch(null);
         } catch (ActivityNotFoundException e) {
-            // How could this fail???
-            switchToFragment(new FailedFragment(), false);
+            switchToFragment(FailedFragment.forKind(WorkProfileRecovery.FailureKind.SETUP_FAILED), false);
         }
     }
 
@@ -124,8 +133,14 @@ public class SetupWizardActivity extends AppCompatActivity {
                 // until that activity returns. In this case, there is really no need for us
                 // to do anything else here (and this callback may not even be called because
                 // the activity will likely be already finished by this point).
-                // There is no need for more action
                 finishWithResult(true);
+                return;
+            }
+
+            WorkProfileRecovery.FailureKind kind = WorkProfileRecovery.classifyFailure(
+                    this, mProfileCountBeforeProvision, true);
+            if (kind == WorkProfileRecovery.FailureKind.INCOMPLETE_WORK_PROFILE) {
+                recoverOrShowFailure(kind);
                 return;
             }
 
@@ -135,8 +150,38 @@ public class SetupWizardActivity extends AppCompatActivity {
             mStorage.setBoolean(LocalStorageManager.PREF_IS_SETTING_UP, true);
             switchToFragment(new ActionRequiredFragment(), false);
         } else {
-            switchToFragment(new FailedFragment(), false);
+            WorkProfileRecovery.FailureKind kind = WorkProfileRecovery.classifyFailure(
+                    this, mProfileCountBeforeProvision, false);
+            if (kind == WorkProfileRecovery.FailureKind.INCOMPLETE_WORK_PROFILE) {
+                recoverOrShowFailure(kind);
+            } else {
+                switchToFragment(FailedFragment.forKind(kind), false);
+            }
         }
+    }
+
+    /**
+     * Try to heal an incomplete work profile; if that does not yield a usable profile,
+     * show the recovery failure UI.
+     */
+    private void recoverOrShowFailure(WorkProfileRecovery.FailureKind kind) {
+        WorkProfileRecovery.Outcome heal = WorkProfileRecovery.tryHeal(this);
+        if (heal == WorkProfileRecovery.Outcome.HEALTHY
+                || Utility.isWorkProfileAvailable(this)) {
+            finishWithResult(true);
+            return;
+        }
+        if (heal == WorkProfileRecovery.Outcome.HEAL_LAUNCHED) {
+            findViewById(R.id.setup_wizard_container).postDelayed(() -> {
+                if (Utility.isWorkProfileAvailable(this)) {
+                    finishWithResult(true);
+                } else {
+                    switchToFragment(FailedFragment.forKind(kind), false);
+                }
+            }, 1500);
+            return;
+        }
+        switchToFragment(FailedFragment.forKind(kind), false);
     }
 
     public static class SetupWizardContract extends ActivityResultContract<Void, Boolean> {
@@ -433,6 +478,31 @@ public class SetupWizardActivity extends AppCompatActivity {
     }
 
     public static class FailedFragment extends TextWizardFragment {
+        private static final String ARG_KIND = "kind";
+
+        static FailedFragment forKind(WorkProfileRecovery.FailureKind kind) {
+            FailedFragment f = new FailedFragment();
+            Bundle args = new Bundle();
+            args.putString(ARG_KIND, kind.name());
+            f.setArguments(args);
+            return f;
+        }
+
+        private WorkProfileRecovery.FailureKind kind() {
+            Bundle args = getArguments();
+            if (args == null) return WorkProfileRecovery.FailureKind.SETUP_FAILED;
+            try {
+                return WorkProfileRecovery.FailureKind.valueOf(args.getString(ARG_KIND,
+                        WorkProfileRecovery.FailureKind.SETUP_FAILED.name()));
+            } catch (IllegalArgumentException e) {
+                return WorkProfileRecovery.FailureKind.SETUP_FAILED;
+            }
+        }
+
+        private boolean isIncomplete() {
+            return kind() == WorkProfileRecovery.FailureKind.INCOMPLETE_WORK_PROFILE;
+        }
+
         @Override
         protected int getLayoutResource() {
             return R.layout.fragment_setup_wizard_generic_text;
@@ -440,20 +510,50 @@ public class SetupWizardActivity extends AppCompatActivity {
 
         @Override
         protected int getTextRes() {
+            if (isIncomplete()) {
+                return R.string.setup_wizard_failed_incomplete_profile_text;
+            }
             return R.string.setup_wizard_failed_text;
+        }
+
+        @Override
+        public void onNavigateBack() {
+            super.onNavigateBack();
+            if (isIncomplete()) {
+                WorkProfileRecovery.openWorkProfileSettings(requireContext());
+            }
         }
 
         @Override
         public void onNavigateNext() {
             super.onNavigateNext();
-            mActivity.finishWithResult(false);
+            if (!isIncomplete()) {
+                mActivity.finishWithResult(false);
+                return;
+            }
+            WorkProfileRecovery.Outcome outcome =
+                    WorkProfileRecovery.tryWipeOrOpenSettings(requireContext());
+            if (outcome == WorkProfileRecovery.Outcome.WIPE_LAUNCHED) {
+                mNextButton.postDelayed(() -> {
+                    if (mActivity != null) mActivity.finishWithResult(false);
+                }, 1500);
+            } else {
+                mActivity.finishWithResult(false);
+            }
         }
 
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             setHeaderText(R.string.setup_wizard_failed);
-            mBackButton.setVisibility(View.GONE);
+            if (isIncomplete()) {
+                mBackButton.setVisibility(View.VISIBLE);
+                mBackButton.setText(R.string.setup_wizard_open_settings);
+                mNextButton.setText(R.string.setup_wizard_remove_work_profile);
+            } else {
+                mBackButton.setVisibility(View.GONE);
+                mNextButton.setText(R.string.setup_wizard_exit);
+            }
         }
     }
 }
