@@ -252,7 +252,7 @@ public class FileShuttleService extends Service {
         } else {
             result.moveToFirst();
             try {
-                int index = result.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
+                int index = result.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.DATA);
                 return getContentResolver().openFileDescriptor(
                         Uri.fromFile(new File(result.getString(index))), "r");
             } catch (FileNotFoundException e) {
