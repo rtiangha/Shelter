@@ -233,6 +233,8 @@ public class Utility {
                 browsableDefaultIntentFilter,
                 DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED);
 
+        PersonalToWorkActionViewPolicy.registerFilters(manager, adminComponent);
+
         // Block contacts searching optionally
         manager.setCrossProfileContactsSearchDisabled(adminComponent,
                 SettingsManager.getInstance().getBlockContactsSearchingEnabled());
